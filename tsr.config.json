@@ -1,0 +1,5 @@
+{
+  "$schema": "https://tanstack.com/router/latest/schema.json",
+  "routesDirectory": "./src/routes",
+  "generatedRouteTree": "./src/routeTree.gen.ts"
+}
