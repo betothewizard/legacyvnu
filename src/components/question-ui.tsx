@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import type { QuestionType } from "../types/question";
 import { radio } from "../styles";
 import { RadioGroup, RadioGroupItem } from "~/src/components/ui/radio-group";
-import { Card } from "./ui/card";
-import { Button } from "./ui/button";
+
 import { Label } from "./ui/label";
 
 interface QuestionProps {
@@ -17,13 +16,13 @@ const Question = (props: QuestionProps) => {
   const [selected, setSelected] = useState<string>(
     questionType.selectedAnswerIndex !== undefined
       ? questionType.answers[questionType.selectedAnswerIndex].content
-      : "",
+      : ""
   );
 
   useEffect(() => {
     if (questionType.selectedAnswerIndex !== undefined) {
       setSelected(
-        questionType.answers[questionType.selectedAnswerIndex].content,
+        questionType.answers[questionType.selectedAnswerIndex].content
       );
     } else {
       setSelected("");
@@ -39,7 +38,7 @@ const Question = (props: QuestionProps) => {
   const handleValueChange = (value: string) => {
     setSelected(value);
     const selectedAnswerIndex = questionType.answers.findIndex(
-      (answer) => answer.content === value,
+      (answer) => answer.content === value
     );
     if (selectedAnswerIndex !== -1) {
       onAnswerSelected(questionType.id, selectedAnswerIndex);

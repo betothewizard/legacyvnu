@@ -11,7 +11,7 @@ async function getPrerenderPages(workerUrl: string | undefined) {
     path: string;
     prerender?: { enabled?: boolean; outputPath?: string };
   }> = [
-    { path: "/" },
+    { path: "/", prerender: { enabled: true } },
     { path: "/tai-lieu" },
     { path: "/trac-nghiem" },
     { path: "/dong-gop" },
@@ -23,7 +23,7 @@ async function getPrerenderPages(workerUrl: string | undefined) {
       const response = await fetch(`${workerUrl}/api/quizzes/metadata`);
       if (!response.ok) {
         console.warn(
-          `[prerender] Failed to fetch quizzes metadata: ${response.status}`
+          `[prerender] Failed to fetch quizzes metadata: ${response.status}`,
         );
         return pages;
       }
@@ -62,10 +62,18 @@ export default defineConfig(async ({ mode }) => {
       tsconfigPaths(),
       tailwindcss(),
       tanstackStart({
+        spa: {
+          enabled: true,
+          prerender: {
+            outputPath: "/_shell.html",
+            crawlLinks: false,
+          },
+        },
         prerender: {
           enabled: true,
           autoSubfolderIndex: true,
-          autoStaticPathsDiscovery: true,
+
+          autoStaticPathsDiscovery: false,
           crawlLinks: false,
         },
         pages: prerenderPages,

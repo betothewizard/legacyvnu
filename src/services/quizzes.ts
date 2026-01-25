@@ -1,42 +1,41 @@
-import { getEnv } from "./../lib/utils";
-import type { IQuizMetadata } from "~/src/types/quizzes";
+import { createServerFn } from "@tanstack/react-start";
+import { staticFunctionMiddleware } from "@tanstack/start-static-server-functions";
 
-export const getQuestions = async (subjectCode: string, page: number) => {
-  const response = await fetch(
-    `${import.meta.env.VITE_WORKER_URL}/api/subject/${subjectCode}/quizzes?page=${page}`,
-    {
-      method: "GET",
-    }
-  );
-  const data = await response.json();
-  return data;
-};
+const WORKER_URL = process.env.VITE_WORKER_URL;
 
-export const getQuizzesMetadata = async (): Promise<IQuizMetadata[]> => {
-  const response = await fetch(
-    `${getEnv("VITE_WORKER_URL")}/api/quizzes/metadata`,
-    {
-      method: "GET",
-    }
-  );
-  const data = await response.json();
-  return data;
-};
+export const getQuestions = createServerFn({ method: "GET" })
+  .middleware([staticFunctionMiddleware])
+  .inputValidator((data: { subjectCode: string; page: number }) => data)
+  .handler(async ({ data }) => {
+    const { subjectCode, page } = data;
+    const response = await fetch(
+      `${WORKER_URL}/api/subject/${subjectCode}/quizzes?page=${page}`
+    );
+    return response.json();
+  });
 
-export const submitQuiz = async (
-  submission: {
-    id: number;
-    selectedAnswerIndex: number;
-  }[],
-  subjectCode: string
-) => {
-  const response = await fetch(
-    `${import.meta.env.VITE_WORKER_URL}/api/subject/${subjectCode}/submit`,
-    {
-      method: "POST",
-      body: JSON.stringify(submission),
-    }
-  );
+export const getQuizzesMetadata = createServerFn({ method: "GET" })
+  .middleware([staticFunctionMiddleware])
+  .handler(async () => {
+    const response = await fetch(`${WORKER_URL}/api/quizzes/metadata`);
+    return response.json();
+  });
 
-  return response.json();
-};
+export const submitQuiz = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: {
+      submission: { id: number; selectedAnswerIndex: number }[];
+      subjectCode: string;
+    }) => data
+  )
+  .handler(async ({ data }) => {
+    const { submission, subjectCode } = data;
+    const response = await fetch(
+      `${WORKER_URL}/api/subject/${subjectCode}/submit`,
+      {
+        method: "POST",
+        body: JSON.stringify(submission),
+      }
+    );
+    return response.json();
+  });
