@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "~/src/components/ui/button";
 import { CustomDialog } from "../../../components/custom-dialog";
 import { Question } from "../../../components/question-ui";
@@ -12,13 +12,14 @@ import { shuffle } from "../../../lib/random";
 const QUESTIONS_PER_PAGE = 10;
 
 export const Route = createFileRoute("/_layout/trac-nghiem/$subjectCode/")({
-  // Cache data forever - static content doesn't change
   staleTime: Infinity,
   gcTime: Infinity,
   loader: async ({ params }) => {
     const { subjectCode } = params;
     const currentPage = 0;
-    const questionData = await getQuestions(subjectCode, currentPage);
+    const questionData = await getQuestions({
+      data: { subjectCode, page: currentPage },
+    });
     return { currentPage, subjectCode, questionData };
   },
   component: QuizPage,
@@ -53,17 +54,14 @@ function QuizPage() {
   const questions = questionData?.questions || [];
   const meta = questionData?.meta || { totalPages: 1 };
 
+  // Initialize directly from loader data for SSG (useEffect doesn't run on server)
   const [questionsAndAnswers, setQuestionsAndAnswers] = useState<
     QuestionType[]
-  >([]);
+  >(() =>
+    questions.length > 0 ? getQuestionsAndAnswers(questions, currentPage) : []
+  );
   const [showResult, setShowResult] = useState<boolean[]>([]);
   const [showWarning, setShowWarning] = useState(false);
-
-  useEffect(() => {
-    if (questions.length > 0) {
-      setQuestionsAndAnswers(getQuestionsAndAnswers(questions, currentPage));
-    }
-  }, [questions, currentPage]);
 
   const onAnswerSelected = (questionId: number, answerIndex: number) => {
     setQuestionsAndAnswers((prevQuestions) => {
@@ -91,7 +89,7 @@ function QuizPage() {
       }));
 
       try {
-        await submitQuiz(submission, subjectCode);
+        await submitQuiz({ data: { submission, subjectCode } });
       } catch (error) {
         console.error(error);
       }
