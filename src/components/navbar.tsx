@@ -23,7 +23,7 @@ const navLinks = [
 ];
 
 const githubLink = {
-  to: "https://github.com/betothewizard/hocvnu",
+  to: "https://github.com/betothewizard/legacyvnu",
   label: "GitHub",
 };
 
@@ -49,9 +49,9 @@ const Navbar = () => {
       <Link
         to="/"
         className="flex items-center space-x-4"
-        aria-label="Trang chủ HocVNU"
+        aria-label="Trang chủ LegacyVNU"
       >
-        <Logo size={64} role="img" aria-label="Logo HocVNU" />
+        <Logo size={64} role="img" aria-label="Logo LegacyVNU" />
       </Link>
 
       {/* Desktop Navigation */}

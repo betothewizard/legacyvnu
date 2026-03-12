@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_layout/trac-nghiem/$subjectCode/$page")(
     },
     component: QuizPage,
   },
-);
+)
 
 const getQuestionsAndAnswers = (
   data: any[],

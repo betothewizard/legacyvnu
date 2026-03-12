@@ -6,25 +6,37 @@ export const Logo = ({
     <svg
       width={size}
       height={size}
-      viewBox="0 0 200 200"
+      viewBox="0 0 400 400"
       xmlns="http://www.w3.org/2000/svg"
       {...rest}
     >
-      <defs>
-        <mask id="bars">
-          <rect width="100%" height="100%" fill="white" />
-          <rect x="10" y="120" width="180" height="10" fill="black" />
-          <rect x="60" y="10" width="10" height="180" fill="black" />
-        </mask>
-      </defs>
+      <style>{`
+        .btn { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .btn-top, .btn-body { transition: all 0.05s ease; }
 
-      <circle
-        cx="100"
-        cy="100"
-        r="90"
-        fill="oklch(0.71 0.097 111.7)"
-        mask="url(#bars)"
-      />
+        /* Mặt trên lún xuống 40px */
+        .btn:active .btn-top { transform: translateY(40px); }
+
+        /* Thân ép dẹp lại mượt mà, khớp hoàn hảo với 4 điểm mới */
+        .btn:active .btn-body {
+          d: path("M70 200 v20 L200 310 l130 -90 v-20 L200 290 z");
+        }
+      `}</style>
+      <g className="btn" strokeWidth={60} strokeLinejoin="round">
+        <path
+          className="btn-body"
+          fill="oklch(.48 .12 65)"
+          stroke="oklch(.48 .12 65)"
+          d="M70 160 v60 L200 310 l130 -90 v-60 L200 250 z"
+        />
+
+        <path
+          className="btn-top"
+          fill="oklch(.60 .14 65)"
+          stroke="oklch(.60 .14 65)"
+          d="M200 70 l130 90 l-130 90 l-130 -90 z"
+        />
+      </g>
     </svg>
   );
 };

@@ -99,7 +99,7 @@ function ContributePage() {
             <CardHeader>
               <CardTitle>Đóng góp</CardTitle>
               <CardDescription>
-                Bạn có thể đóng góp tài liệu, hoặc ý kiến để HocVNU ngày càng
+                Bạn có thể đóng góp tài liệu, hoặc ý kiến để LegacyVNU ngày càng
                 phát triển 💯
               </CardDescription>
             </CardHeader>

@@ -13,7 +13,7 @@ import posthog from "posthog-js";
 import { CountdownBanner } from "../components/banner";
 import "../styles/app.css";
 
-const ORIGIN = "https://hocvnu.pages.dev";
+const ORIGIN = "https://legacyvnu.pages.dev";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -21,17 +21,17 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { httpEquiv: "X-UA-Compatible", content: "IE=edge" },
-      { title: "HocVNU" },
+      { title: "LegacyVNU" },
       {
         name: "description",
         content:
-          "HocVNU - Nơi sinh viên VNU cùng chia sẻ tài liệu, đề thi và kinh nghiệm học tập.",
+          "LegacyVNU - Nơi sinh viên VNU cùng chia sẻ tài liệu, đề thi và kinh nghiệm học tập.",
       },
       { name: "author", content: "betothewizard" },
       {
         name: "keywords",
         content:
-          "HocVNU, VNU, ĐHQGHN, UET, tài liệu UET, Đại học Quốc gia Hà Nội, tài liệu VNU, đề thi VNU, trắc nghiệm, ôn tập đại cương, học VNU, sinh viên VNU, tài liệu học tập, chia sẻ đề thi",
+          "legacyvnu, hocvnu, VNU, ĐHQGHN, UET, tài liệu UET, Đại học Quốc gia Hà Nội, tài liệu VNU, đề thi VNU, trắc nghiệm, ôn tập đại cương, học VNU, sinh viên VNU, tài liệu học tập, chia sẻ đề thi",
       },
       {
         name: "robots",
@@ -42,30 +42,33 @@ export const Route = createRootRoute({
       { name: "language", content: "Vietnamese" },
       { name: "revisit-after", content: "7 days" },
       { property: "og:locale", content: "vi_VN" },
-      { property: "og:url", content: "https://hocvnu.pages.dev" },
+      { property: "og:url", content: "https://legacyvnu.pages.dev" },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "HocVNU" },
+      { property: "og:site_name", content: "LegacyVNU" },
       {
         property: "og:title",
         content:
-          "HocVNU - Nơi sinh viên VNU cùng chia sẻ tài liệu, đề thi và kinh nghiệm học tập",
+          "LegacyVNU - Nơi sinh viên VNU cùng chia sẻ tài liệu, đề thi và kinh nghiệm học tập",
       },
       {
         property: "og:description",
         content: "Nền tảng học tập cho sinh viên Đại học Quốc gia Hà Nội.",
       },
-      { property: "og:image", content: "https://hocvnu.pages.dev/logo-og.png" },
-      { property: "og:image:alt", content: "HocVNU Logo" },
+      {
+        property: "og:image",
+        content: "https://legacyvnu.pages.dev/logo-og.png",
+      },
+      { property: "og:image:alt", content: "LegacyVNU Logo" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:image:type", content: "image/png" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "twitter:domain", content: "hocvnu.pages.dev" },
-      { property: "twitter:url", content: "https://hocvnu.pages.dev" },
+      { property: "twitter:domain", content: "legacyvnu.pages.dev" },
+      { property: "twitter:url", content: "https://legacyvnu.pages.dev" },
       {
         name: "twitter:title",
         content:
-          "HocVNU - Nơi sinh viên VNU cùng chia sẻ tài liệu, đề thi và kinh nghiệm học tập",
+          "LegacyVNU - Nơi sinh viên VNU cùng chia sẻ tài liệu, đề thi và kinh nghiệm học tập",
       },
       {
         name: "twitter:description",
@@ -74,12 +77,12 @@ export const Route = createRootRoute({
       },
       {
         name: "twitter:image",
-        content: "https://hocvnu.pages.dev/logo-og.png",
+        content: "https://legacyvnu.pages.dev/logo-og.png",
       },
       { name: "theme-color", content: "#ecdab9" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-      { name: "apple-mobile-web-app-title", content: "HocVNU" },
+      { name: "apple-mobile-web-app-title", content: "LegacyVNU" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
@@ -131,7 +134,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "HocVNU",
+    name: "LegacyVNU",
     url: ORIGIN,
     description:
       "Nền tảng chia sẻ tài liệu, đề thi và kinh nghiệm học tập cho sinh viên Đại học Quốc gia Hà Nội.",

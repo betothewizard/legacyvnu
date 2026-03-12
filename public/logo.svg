@@ -1,1 +1,16 @@
-<svg width="64" height="64" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><mask id="a"><rect width="100%" height="100%" fill="#fff"/><path d="M10 120h180v10H10z"/><path d="M60 10h10v180H60z"/></mask></defs><circle cx="100" cy="100" r="90" fill="oklch(0.71 0.097 111.7)" mask="url(#a)"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g stroke-width="60" stroke-linejoin="round">
+    <!-- Lớp đổ bóng -->
+    <path
+      fill="oklch(.48 .12 65)"
+      stroke="oklch(.48 .12 65)"
+      d="M70 160 v60 L200 310 l130 -90 v-60 L200 250 z"
+    />
+    <!-- Lớp mặt trên -->
+    <path
+      fill="oklch(.60 .14 65)"
+      stroke="oklch(.60 .14 65)"
+      d="M200 70 l130 90 l-130 90 l-130 -90 z"
+    />
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 {
-  "name": "HocVNU",
-  "short_name": "HocVNU",
+  "name": "LegacyVNU",
+  "short_name": "LegacyVNU",
   "description": "Nơi sinh viên VNU cùng chia sẻ tài liệu, đề thi và kinh nghiệm học tập",
   "start_url": "/",
   "display": "standalone",

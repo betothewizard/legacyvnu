@@ -9,7 +9,7 @@
     "build": "vite build",
     "start": "vite preview",
     "scan": "react-scan",
-    "deploy:app": "vite build && wrangler pages deploy dist/client --project-name hocvnu",
+    "deploy:app": "vite build && wrangler pages deploy dist/client --project-name legacyvnu",
     "deploy:worker": "wrangler versions secret bulk .env --name hocvnu-worker && wrangler deploy workers/index.ts --name hocvnu-worker",
     "typecheck": "tsc",
     "db:generate": "drizzle-kit generate",

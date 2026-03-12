@@ -56,5 +56,4 @@ Disallow: /
 # END Cloudflare Managed Content
 
 # Main sitemap for sitelinks & indexing
-Sitemap: https://hocvnu.pages.dev/sitemap.xml
-
+Sitemap: https://legacyvnu.pages.dev/sitemap.xml
