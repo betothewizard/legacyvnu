@@ -101,6 +101,13 @@ export const Route = createRootRoute({
         crossOrigin: "anonymous",
       },
     ],
+    scripts: [
+      {
+        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2669549342761819",
+        async: true,
+        crossOrigin: "anonymous",
+      },
+    ],
   }),
   component: RootComponent,
 });

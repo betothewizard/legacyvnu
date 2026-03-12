@@ -1,8 +1,8 @@
 import type { D1Database, R2Bucket } from "@cloudflare/workers-types";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull, like, ne, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { questionsTable, subjectsTable, submissionsTable } from "./db/schema";
+import { questionsTable, subjectsTable, submissionsTable, documentsTable } from "./db/schema";
 import { PAGE_SIZE } from "./constants";
 import { createDb } from "./db";
 
@@ -138,7 +138,7 @@ app
 
       console.log({ submissions, parsedSubmissions });
 
-      const a = await db
+      await db
         .update(submissionsTable)
         .set({ data: JSON.stringify(parsedSubmissions) })
         .where(eq(submissionsTable.subjectCode, subjectCode));
@@ -280,6 +280,125 @@ app.post("/feedback", async (c) => {
     return c.json({ error: "Failed to submit feedback" }, 500);
   }
 });
+
+// --- Documents ---
+const DOCS_PAGE_SIZE = 20;
+
+app
+  .get("/documents/tags", async (c) => {
+    try {
+      const db = createDb(c.env.DB);
+      const rows = await db
+        .select({
+          tag: documentsTable.tag,
+          count: sql<number>`count(*)`,
+        })
+        .from(documentsTable)
+        .groupBy(documentsTable.tag)
+        .orderBy(sql`count(*) desc`);
+      return c.json(rows);
+    } catch (e) {
+      console.error(e);
+      return c.json({ error: e }, 500);
+    }
+  })
+  .get("/documents/:slug", async (c) => {
+    try {
+      const db = createDb(c.env.DB);
+      const slug = c.req.param("slug");
+
+      const doc = await db.query.documentsTable.findFirst({
+        where: eq(documentsTable.slug, slug),
+      });
+      if (!doc) return c.json({ error: "Document not found" }, 404);
+
+      // Related: same tag, different slug, limit 4
+      const related = await db
+        .select({
+          slug: documentsTable.slug,
+          title: documentsTable.title,
+          tag: documentsTable.tag,
+          downloadCount: documentsTable.downloadCount,
+        })
+        .from(documentsTable)
+        .where(
+          and(
+            doc.tag ? eq(documentsTable.tag, doc.tag) : isNull(documentsTable.tag),
+            ne(documentsTable.slug, slug),
+          ),
+        )
+        .limit(4);
+
+      return c.json({ doc, related });
+    } catch (e) {
+      console.error(e);
+      return c.json({ error: e }, 500);
+    }
+  })
+  .get("/documents", async (c) => {
+    try {
+      const db = createDb(c.env.DB);
+      const tag = c.req.query("tag") || "";
+      const search = c.req.query("search") || "";
+      const page = Math.max(0, +(c.req.query("page") || "0"));
+
+      const conditions = [];
+      if (tag) conditions.push(eq(documentsTable.tag, tag));
+      if (search) conditions.push(like(documentsTable.title, `%${search}%`));
+
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const [countRow] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(documentsTable)
+        .where(where);
+
+      const total = countRow?.count ?? 0;
+      const totalPages = Math.ceil(total / DOCS_PAGE_SIZE);
+
+      const docs = await db
+        .select({
+          slug: documentsTable.slug,
+          title: documentsTable.title,
+          description: documentsTable.description,
+          tag: documentsTable.tag,
+          downloadCount: documentsTable.downloadCount,
+          publishedAt: documentsTable.publishedAt,
+        })
+        .from(documentsTable)
+        .where(where)
+        .orderBy(sql`${documentsTable.publishedAt} desc`)
+        .limit(DOCS_PAGE_SIZE)
+        .offset(page * DOCS_PAGE_SIZE);
+
+      return c.json({ docs, meta: { page, totalPages, total } });
+    } catch (e) {
+      console.error(e);
+      return c.json({ error: e }, 500);
+    }
+  })
+  .post("/documents/:slug/download", async (c) => {
+    try {
+      const db = createDb(c.env.DB);
+      const slug = c.req.param("slug");
+
+      const doc = await db.query.documentsTable.findFirst({
+        where: eq(documentsTable.slug, slug),
+        columns: { fileUrl: true },
+      });
+      if (!doc) return c.json({ error: "Document not found" }, 404);
+
+      await db
+        .update(documentsTable)
+        .set({ downloadCount: sql`${documentsTable.downloadCount} + 1` })
+        .where(eq(documentsTable.slug, slug));
+
+      return c.json({ fileUrl: doc.fileUrl });
+    } catch (e) {
+      console.error(e);
+      return c.json({ error: e }, 500);
+    }
+  });
 
 app.notFound((c) => {
   return c.json({ error: "Not found" }, 404);

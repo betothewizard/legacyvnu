@@ -11,7 +11,7 @@ function LandingPage() {
     <div className={`${styles.flexStart} ${styles.paddingY}`}>
       <div className={`${styles.boxWidth}`}>
         <div className={`${styles.flexStart} flex-1 flex-col px-6 sm:px-16`}>
-          <h1 className="sm:mt-0 sm:max-w-full font-serif text-3xl md:text-3xl lg:text-4xl">
+          <h1 className="sm:mt-20 sm:max-w-full font-serif text-3xl md:text-3xl lg:text-4xl">
             Nơi sinh viên VNU cùng chia sẻ tài liệu, đề thi và kinh nghiệm học
             tập.
           </h1>

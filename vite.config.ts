@@ -15,6 +15,8 @@ async function getPrerenderPages(workerUrl: string | undefined) {
     { path: "/tai-lieu" },
     { path: "/trac-nghiem" },
     { path: "/dong-gop" },
+    { path: "/gioi-thieu" },
+    { path: "/chinh-sach-bao-mat" },
   ];
 
   // Fetch quizzes metadata from API

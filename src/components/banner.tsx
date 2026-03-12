@@ -74,7 +74,7 @@ export function CountdownBanner() {
       {timerComponents.length ? (
         <p>Sắp ra mắt... {timerComponents}</p>
       ) : (
-        <p>Documents Page is here!</p>
+        <p>LegacyVNU Beta!</p>
       )}
       <button
         onClick={handleClose}

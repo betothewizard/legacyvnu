@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
+import { Route as LayoutGioiThieuRouteImport } from './routes/_layout/gioi-thieu'
 import { Route as LayoutDongGopRouteImport } from './routes/_layout/dong-gop'
+import { Route as LayoutChinhSachBaoMatRouteImport } from './routes/_layout/chinh-sach-bao-mat'
 import { Route as LayoutSplatRouteImport } from './routes/_layout/$'
 import { Route as LayoutTracNghiemIndexRouteImport } from './routes/_layout/trac-nghiem/index'
 import { Route as LayoutTaiLieuIndexRouteImport } from './routes/_layout/tai-lieu/index'
@@ -28,9 +30,19 @@ const LayoutIndexRoute = LayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutGioiThieuRoute = LayoutGioiThieuRouteImport.update({
+  id: '/gioi-thieu',
+  path: '/gioi-thieu',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutDongGopRoute = LayoutDongGopRouteImport.update({
   id: '/dong-gop',
   path: '/dong-gop',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutChinhSachBaoMatRoute = LayoutChinhSachBaoMatRouteImport.update({
+  id: '/chinh-sach-bao-mat',
+  path: '/chinh-sach-bao-mat',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSplatRoute = LayoutSplatRouteImport.update({
@@ -68,7 +80,9 @@ const LayoutTracNghiemSubjectCodePageRoute =
 
 export interface FileRoutesByFullPath {
   '/$': typeof LayoutSplatRoute
+  '/chinh-sach-bao-mat': typeof LayoutChinhSachBaoMatRoute
   '/dong-gop': typeof LayoutDongGopRoute
+  '/gioi-thieu': typeof LayoutGioiThieuRoute
   '/': typeof LayoutIndexRoute
   '/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
   '/tai-lieu': typeof LayoutTaiLieuIndexRoute
@@ -78,7 +92,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/$': typeof LayoutSplatRoute
+  '/chinh-sach-bao-mat': typeof LayoutChinhSachBaoMatRoute
   '/dong-gop': typeof LayoutDongGopRoute
+  '/gioi-thieu': typeof LayoutGioiThieuRoute
   '/': typeof LayoutIndexRoute
   '/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
   '/tai-lieu': typeof LayoutTaiLieuIndexRoute
@@ -90,7 +106,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
   '/_layout/$': typeof LayoutSplatRoute
+  '/_layout/chinh-sach-bao-mat': typeof LayoutChinhSachBaoMatRoute
   '/_layout/dong-gop': typeof LayoutDongGopRoute
+  '/_layout/gioi-thieu': typeof LayoutGioiThieuRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
   '/_layout/tai-lieu/': typeof LayoutTaiLieuIndexRoute
@@ -102,7 +120,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/$'
+    | '/chinh-sach-bao-mat'
     | '/dong-gop'
+    | '/gioi-thieu'
     | '/'
     | '/tai-lieu/$documentId'
     | '/tai-lieu'
@@ -112,7 +132,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
+    | '/chinh-sach-bao-mat'
     | '/dong-gop'
+    | '/gioi-thieu'
     | '/'
     | '/tai-lieu/$documentId'
     | '/tai-lieu'
@@ -123,7 +145,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_layout'
     | '/_layout/$'
+    | '/_layout/chinh-sach-bao-mat'
     | '/_layout/dong-gop'
+    | '/_layout/gioi-thieu'
     | '/_layout/'
     | '/_layout/tai-lieu/$documentId'
     | '/_layout/tai-lieu/'
@@ -152,11 +176,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/gioi-thieu': {
+      id: '/_layout/gioi-thieu'
+      path: '/gioi-thieu'
+      fullPath: '/gioi-thieu'
+      preLoaderRoute: typeof LayoutGioiThieuRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/dong-gop': {
       id: '/_layout/dong-gop'
       path: '/dong-gop'
       fullPath: '/dong-gop'
       preLoaderRoute: typeof LayoutDongGopRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/chinh-sach-bao-mat': {
+      id: '/_layout/chinh-sach-bao-mat'
+      path: '/chinh-sach-bao-mat'
+      fullPath: '/chinh-sach-bao-mat'
+      preLoaderRoute: typeof LayoutChinhSachBaoMatRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/$': {
@@ -206,7 +244,9 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteChildren {
   LayoutSplatRoute: typeof LayoutSplatRoute
+  LayoutChinhSachBaoMatRoute: typeof LayoutChinhSachBaoMatRoute
   LayoutDongGopRoute: typeof LayoutDongGopRoute
+  LayoutGioiThieuRoute: typeof LayoutGioiThieuRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
   LayoutTaiLieuDocumentIdRoute: typeof LayoutTaiLieuDocumentIdRoute
   LayoutTaiLieuIndexRoute: typeof LayoutTaiLieuIndexRoute
@@ -217,7 +257,9 @@ interface LayoutRouteChildren {
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutSplatRoute: LayoutSplatRoute,
+  LayoutChinhSachBaoMatRoute: LayoutChinhSachBaoMatRoute,
   LayoutDongGopRoute: LayoutDongGopRoute,
+  LayoutGioiThieuRoute: LayoutGioiThieuRoute,
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutTaiLieuDocumentIdRoute: LayoutTaiLieuDocumentIdRoute,
   LayoutTaiLieuIndexRoute: LayoutTaiLieuIndexRoute,

@@ -1,4 +1,4 @@
-import { Github, Menu, XIcon } from "lucide-react";
+import { Menu, XIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Button } from "~/src/components/ui/button";
@@ -22,11 +22,6 @@ const navLinks = [
   { to: "/dong-gop", label: "Đóng góp" },
 ];
 
-const githubLink = {
-  to: "https://github.com/betothewizard/legacyvnu",
-  label: "GitHub",
-};
-
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -45,18 +40,18 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between w-full py-10">
+    <nav className="flex items-center justify-between w-full py-4">
       <Link
         to="/"
         className="flex items-center space-x-4"
         aria-label="Trang chủ LegacyVNU"
       >
-        <Logo size={64} role="img" aria-label="Logo LegacyVNU" />
+        <Logo size={50} role="img" aria-label="Logo LegacyVNU" />
       </Link>
 
       {/* Desktop Navigation */}
       <NavigationMenu className="hidden sm:flex justify-end flex-1">
-        <NavigationMenuList className="gap-5 font-bold text-lg">
+        <NavigationMenuList className="gap-5 font-bold text-base">
           {navLinks.map((link) => (
             <NavigationMenuItem key={link.to}>
               <Link
@@ -68,17 +63,6 @@ const Navbar = () => {
               </Link>
             </NavigationMenuItem>
           ))}
-          <NavigationMenuItem>
-            <a
-              href={githubLink.to}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="opacity-70 transition-opacity hover:opacity-100"
-              aria-label={githubLink.label}
-            >
-              <Github />
-            </a>
-          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -110,17 +94,6 @@ const Navbar = () => {
                 </Link>
               </DropdownMenuItem>
             ))}
-            <DropdownMenuItem asChild className="text-base py-2 px-3">
-              <a
-                href={githubLink.to}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-between"
-              >
-                GitHub
-                <Github className="h-5 w-5" />
-              </a>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

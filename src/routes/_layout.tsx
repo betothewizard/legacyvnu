@@ -4,6 +4,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { Navbar } from "../components/navbar";
+import { Footer } from "../components/footer";
 import { styles } from "../styles";
 import { BProgress } from "@bprogress/core";
 import "../styles/bprogress.css";
@@ -34,6 +35,7 @@ function LayoutComponent() {
       <div className="grow">
         <Outlet />
       </div>
+      <Footer />
     </div>
   );
 }

@@ -8,6 +8,20 @@
       "when": 1766682207927,
       "tag": "0000_fixed_prima",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1771842143000,
+      "tag": "0001_documents_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1771928470000,
+      "tag": "0002_documents_nullable_tag",
+      "breakpoints": true
     }
   ]
 }

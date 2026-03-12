@@ -27,11 +27,9 @@ export const documentsTable = sqliteTable("documents", {
   slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
   description: text("description"),
-  subjectCode: text("subject_code")
-    .notNull()
-    .references(() => subjectsTable.code),
+  tag: text("tag"),
   fileUrl: text("file_url").notNull(),
-  createdAt: text("created_at").notNull().default("CURRENT_TIMESTAMP"),
-  updatedAt: text("updated_at").notNull().default("CURRENT_TIMESTAMP"),
   downloadCount: integer("download_count").notNull().default(0),
+  publishedAt: text("published_at"),
+  createdAt: text("created_at").notNull().default("CURRENT_TIMESTAMP"),
 });
