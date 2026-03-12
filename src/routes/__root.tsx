@@ -123,8 +123,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   useEffect(() => {
     if (process.env.NODE_ENV === "development") return;
     posthog.init(import.meta.env.VITE_POSTHOG_ID, {
-      api_host: "https://us.i.posthog.com",
-      person_profiles: "identified_only",
+      api_host: import.meta.env.VITE_POSTHOG_HOST,
+			person_profiles: "identified_only",
     });
   }, []);
 

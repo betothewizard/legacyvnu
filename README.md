@@ -1,4 +1,4 @@
-# HocVNU
+# legacyvnu
 
 ## Introduction
 
