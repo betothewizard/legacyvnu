@@ -124,7 +124,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
     if (process.env.NODE_ENV === "development") return;
     posthog.init(import.meta.env.VITE_POSTHOG_ID, {
       api_host: import.meta.env.VITE_POSTHOG_HOST,
-			person_profiles: "identified_only",
+      person_profiles: "identified_only",
     });
   }, []);
 

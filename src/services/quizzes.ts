@@ -9,7 +9,7 @@ export const getQuestions = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { subjectCode, page } = data;
     const response = await fetch(
-      `${WORKER_URL}/api/subject/${subjectCode}/quizzes?page=${page}`
+      `${WORKER_URL}/api/subject/${subjectCode}/quizzes?page=${page}`,
     );
     return response.json();
   });
@@ -26,7 +26,7 @@ export const submitQuiz = createServerFn({ method: "POST" })
     (data: {
       submission: { id: number; selectedAnswerIndex: number }[];
       subjectCode: string;
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     const { submission, subjectCode } = data;
@@ -35,7 +35,7 @@ export const submitQuiz = createServerFn({ method: "POST" })
       {
         method: "POST",
         body: JSON.stringify(submission),
-      }
+      },
     );
     return response.json();
   });

@@ -54,7 +54,7 @@ export function CountdownBanner() {
       <span key={interval}>
         {timeLeft[interval as keyof typeof timeLeft]}{" "}
         {timeUnitTranslations[interval]}{" "}
-      </span>
+      </span>,
     );
   });
 

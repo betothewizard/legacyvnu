@@ -24,12 +24,12 @@ export const Route = createFileRoute("/_layout/trac-nghiem/$subjectCode/$page")(
       return { currentPage, subjectCode, questionData };
     },
     component: QuizPage,
-  }
+  },
 );
 
 const getQuestionsAndAnswers = (
   data: any[],
-  currentPage: number
+  currentPage: number,
 ): QuestionType[] => {
   return data.map((questionData, id: number) => ({
     id: currentPage * QUESTIONS_PER_PAGE + id,
@@ -43,7 +43,7 @@ const getQuestionsAndAnswers = (
         (content: string, index: number) => ({
           id: index + 1,
           content: content,
-        })
+        }),
       ),
     ]),
     correctAnswer: questionData.correct_answer,
@@ -60,7 +60,7 @@ function QuizPage() {
   const [questionsAndAnswers, setQuestionsAndAnswers] = useState<
     QuestionType[]
   >(() =>
-    questions.length > 0 ? getQuestionsAndAnswers(questions, currentPage) : []
+    questions.length > 0 ? getQuestionsAndAnswers(questions, currentPage) : [],
   );
   const [showResult, setShowResult] = useState<boolean[]>([]);
   const [showWarning, setShowWarning] = useState(false);
@@ -68,14 +68,14 @@ function QuizPage() {
   const onAnswerSelected = (questionId: number, answerIndex: number) => {
     setQuestionsAndAnswers((prevQuestions) => {
       return prevQuestions.map((q) =>
-        q.id === questionId ? { ...q, selectedAnswerIndex: answerIndex } : q
+        q.id === questionId ? { ...q, selectedAnswerIndex: answerIndex } : q,
       );
     });
   };
 
   const onCheckAnswer = async () => {
     const notAllSelected = questionsAndAnswers.some(
-      (element) => element.selectedAnswerIndex === undefined
+      (element) => element.selectedAnswerIndex === undefined,
     );
     setShowWarning(notAllSelected);
     if (!notAllSelected) {

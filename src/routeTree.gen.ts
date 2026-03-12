@@ -8,211 +8,211 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as LayoutRouteImport } from './routes/_layout'
-import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
-import { Route as LayoutDongGopRouteImport } from './routes/_layout/dong-gop'
-import { Route as LayoutSplatRouteImport } from './routes/_layout/$'
-import { Route as LayoutTracNghiemIndexRouteImport } from './routes/_layout/trac-nghiem/index'
-import { Route as LayoutTaiLieuIndexRouteImport } from './routes/_layout/tai-lieu/index'
-import { Route as LayoutTaiLieuDocumentIdRouteImport } from './routes/_layout/tai-lieu/$documentId'
-import { Route as LayoutTracNghiemSubjectCodeIndexRouteImport } from './routes/_layout/trac-nghiem/$subjectCode.index'
-import { Route as LayoutTracNghiemSubjectCodePageRouteImport } from './routes/_layout/trac-nghiem/$subjectCode.$page'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as LayoutRouteImport } from "./routes/_layout";
+import { Route as LayoutIndexRouteImport } from "./routes/_layout/index";
+import { Route as LayoutDongGopRouteImport } from "./routes/_layout/dong-gop";
+import { Route as LayoutSplatRouteImport } from "./routes/_layout/$";
+import { Route as LayoutTracNghiemIndexRouteImport } from "./routes/_layout/trac-nghiem/index";
+import { Route as LayoutTaiLieuIndexRouteImport } from "./routes/_layout/tai-lieu/index";
+import { Route as LayoutTaiLieuDocumentIdRouteImport } from "./routes/_layout/tai-lieu/$documentId";
+import { Route as LayoutTracNghiemSubjectCodeIndexRouteImport } from "./routes/_layout/trac-nghiem/$subjectCode.index";
+import { Route as LayoutTracNghiemSubjectCodePageRouteImport } from "./routes/_layout/trac-nghiem/$subjectCode.$page";
 
 const LayoutRoute = LayoutRouteImport.update({
-  id: '/_layout',
+  id: "/_layout",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LayoutIndexRoute = LayoutIndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 const LayoutDongGopRoute = LayoutDongGopRouteImport.update({
-  id: '/dong-gop',
-  path: '/dong-gop',
+  id: "/dong-gop",
+  path: "/dong-gop",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 const LayoutSplatRoute = LayoutSplatRouteImport.update({
-  id: '/$',
-  path: '/$',
+  id: "/$",
+  path: "/$",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 const LayoutTracNghiemIndexRoute = LayoutTracNghiemIndexRouteImport.update({
-  id: '/trac-nghiem/',
-  path: '/trac-nghiem/',
+  id: "/trac-nghiem/",
+  path: "/trac-nghiem/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 const LayoutTaiLieuIndexRoute = LayoutTaiLieuIndexRouteImport.update({
-  id: '/tai-lieu/',
-  path: '/tai-lieu/',
+  id: "/tai-lieu/",
+  path: "/tai-lieu/",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 const LayoutTaiLieuDocumentIdRoute = LayoutTaiLieuDocumentIdRouteImport.update({
-  id: '/tai-lieu/$documentId',
-  path: '/tai-lieu/$documentId',
+  id: "/tai-lieu/$documentId",
+  path: "/tai-lieu/$documentId",
   getParentRoute: () => LayoutRoute,
-} as any)
+} as any);
 const LayoutTracNghiemSubjectCodeIndexRoute =
   LayoutTracNghiemSubjectCodeIndexRouteImport.update({
-    id: '/trac-nghiem/$subjectCode/',
-    path: '/trac-nghiem/$subjectCode/',
+    id: "/trac-nghiem/$subjectCode/",
+    path: "/trac-nghiem/$subjectCode/",
     getParentRoute: () => LayoutRoute,
-  } as any)
+  } as any);
 const LayoutTracNghiemSubjectCodePageRoute =
   LayoutTracNghiemSubjectCodePageRouteImport.update({
-    id: '/trac-nghiem/$subjectCode/$page',
-    path: '/trac-nghiem/$subjectCode/$page',
+    id: "/trac-nghiem/$subjectCode/$page",
+    path: "/trac-nghiem/$subjectCode/$page",
     getParentRoute: () => LayoutRoute,
-  } as any)
+  } as any);
 
 export interface FileRoutesByFullPath {
-  '/$': typeof LayoutSplatRoute
-  '/dong-gop': typeof LayoutDongGopRoute
-  '/': typeof LayoutIndexRoute
-  '/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
-  '/tai-lieu': typeof LayoutTaiLieuIndexRoute
-  '/trac-nghiem': typeof LayoutTracNghiemIndexRoute
-  '/trac-nghiem/$subjectCode/$page': typeof LayoutTracNghiemSubjectCodePageRoute
-  '/trac-nghiem/$subjectCode': typeof LayoutTracNghiemSubjectCodeIndexRoute
+  "/$": typeof LayoutSplatRoute;
+  "/dong-gop": typeof LayoutDongGopRoute;
+  "/": typeof LayoutIndexRoute;
+  "/tai-lieu/$documentId": typeof LayoutTaiLieuDocumentIdRoute;
+  "/tai-lieu": typeof LayoutTaiLieuIndexRoute;
+  "/trac-nghiem": typeof LayoutTracNghiemIndexRoute;
+  "/trac-nghiem/$subjectCode/$page": typeof LayoutTracNghiemSubjectCodePageRoute;
+  "/trac-nghiem/$subjectCode": typeof LayoutTracNghiemSubjectCodeIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/$': typeof LayoutSplatRoute
-  '/dong-gop': typeof LayoutDongGopRoute
-  '/': typeof LayoutIndexRoute
-  '/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
-  '/tai-lieu': typeof LayoutTaiLieuIndexRoute
-  '/trac-nghiem': typeof LayoutTracNghiemIndexRoute
-  '/trac-nghiem/$subjectCode/$page': typeof LayoutTracNghiemSubjectCodePageRoute
-  '/trac-nghiem/$subjectCode': typeof LayoutTracNghiemSubjectCodeIndexRoute
+  "/$": typeof LayoutSplatRoute;
+  "/dong-gop": typeof LayoutDongGopRoute;
+  "/": typeof LayoutIndexRoute;
+  "/tai-lieu/$documentId": typeof LayoutTaiLieuDocumentIdRoute;
+  "/tai-lieu": typeof LayoutTaiLieuIndexRoute;
+  "/trac-nghiem": typeof LayoutTracNghiemIndexRoute;
+  "/trac-nghiem/$subjectCode/$page": typeof LayoutTracNghiemSubjectCodePageRoute;
+  "/trac-nghiem/$subjectCode": typeof LayoutTracNghiemSubjectCodeIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/_layout': typeof LayoutRouteWithChildren
-  '/_layout/$': typeof LayoutSplatRoute
-  '/_layout/dong-gop': typeof LayoutDongGopRoute
-  '/_layout/': typeof LayoutIndexRoute
-  '/_layout/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
-  '/_layout/tai-lieu/': typeof LayoutTaiLieuIndexRoute
-  '/_layout/trac-nghiem/': typeof LayoutTracNghiemIndexRoute
-  '/_layout/trac-nghiem/$subjectCode/$page': typeof LayoutTracNghiemSubjectCodePageRoute
-  '/_layout/trac-nghiem/$subjectCode/': typeof LayoutTracNghiemSubjectCodeIndexRoute
+  __root__: typeof rootRouteImport;
+  "/_layout": typeof LayoutRouteWithChildren;
+  "/_layout/$": typeof LayoutSplatRoute;
+  "/_layout/dong-gop": typeof LayoutDongGopRoute;
+  "/_layout/": typeof LayoutIndexRoute;
+  "/_layout/tai-lieu/$documentId": typeof LayoutTaiLieuDocumentIdRoute;
+  "/_layout/tai-lieu/": typeof LayoutTaiLieuIndexRoute;
+  "/_layout/trac-nghiem/": typeof LayoutTracNghiemIndexRoute;
+  "/_layout/trac-nghiem/$subjectCode/$page": typeof LayoutTracNghiemSubjectCodePageRoute;
+  "/_layout/trac-nghiem/$subjectCode/": typeof LayoutTracNghiemSubjectCodeIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/$'
-    | '/dong-gop'
-    | '/'
-    | '/tai-lieu/$documentId'
-    | '/tai-lieu'
-    | '/trac-nghiem'
-    | '/trac-nghiem/$subjectCode/$page'
-    | '/trac-nghiem/$subjectCode'
-  fileRoutesByTo: FileRoutesByTo
+    | "/$"
+    | "/dong-gop"
+    | "/"
+    | "/tai-lieu/$documentId"
+    | "/tai-lieu"
+    | "/trac-nghiem"
+    | "/trac-nghiem/$subjectCode/$page"
+    | "/trac-nghiem/$subjectCode";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/$'
-    | '/dong-gop'
-    | '/'
-    | '/tai-lieu/$documentId'
-    | '/tai-lieu'
-    | '/trac-nghiem'
-    | '/trac-nghiem/$subjectCode/$page'
-    | '/trac-nghiem/$subjectCode'
+    | "/$"
+    | "/dong-gop"
+    | "/"
+    | "/tai-lieu/$documentId"
+    | "/tai-lieu"
+    | "/trac-nghiem"
+    | "/trac-nghiem/$subjectCode/$page"
+    | "/trac-nghiem/$subjectCode";
   id:
-    | '__root__'
-    | '/_layout'
-    | '/_layout/$'
-    | '/_layout/dong-gop'
-    | '/_layout/'
-    | '/_layout/tai-lieu/$documentId'
-    | '/_layout/tai-lieu/'
-    | '/_layout/trac-nghiem/'
-    | '/_layout/trac-nghiem/$subjectCode/$page'
-    | '/_layout/trac-nghiem/$subjectCode/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/_layout"
+    | "/_layout/$"
+    | "/_layout/dong-gop"
+    | "/_layout/"
+    | "/_layout/tai-lieu/$documentId"
+    | "/_layout/tai-lieu/"
+    | "/_layout/trac-nghiem/"
+    | "/_layout/trac-nghiem/$subjectCode/$page"
+    | "/_layout/trac-nghiem/$subjectCode/";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  LayoutRoute: typeof LayoutRouteWithChildren
+  LayoutRoute: typeof LayoutRouteWithChildren;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/_layout': {
-      id: '/_layout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof LayoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_layout/': {
-      id: '/_layout/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/dong-gop': {
-      id: '/_layout/dong-gop'
-      path: '/dong-gop'
-      fullPath: '/dong-gop'
-      preLoaderRoute: typeof LayoutDongGopRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/$': {
-      id: '/_layout/$'
-      path: '/$'
-      fullPath: '/$'
-      preLoaderRoute: typeof LayoutSplatRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/trac-nghiem/': {
-      id: '/_layout/trac-nghiem/'
-      path: '/trac-nghiem'
-      fullPath: '/trac-nghiem'
-      preLoaderRoute: typeof LayoutTracNghiemIndexRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/tai-lieu/': {
-      id: '/_layout/tai-lieu/'
-      path: '/tai-lieu'
-      fullPath: '/tai-lieu'
-      preLoaderRoute: typeof LayoutTaiLieuIndexRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/tai-lieu/$documentId': {
-      id: '/_layout/tai-lieu/$documentId'
-      path: '/tai-lieu/$documentId'
-      fullPath: '/tai-lieu/$documentId'
-      preLoaderRoute: typeof LayoutTaiLieuDocumentIdRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/trac-nghiem/$subjectCode/': {
-      id: '/_layout/trac-nghiem/$subjectCode/'
-      path: '/trac-nghiem/$subjectCode'
-      fullPath: '/trac-nghiem/$subjectCode'
-      preLoaderRoute: typeof LayoutTracNghiemSubjectCodeIndexRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/trac-nghiem/$subjectCode/$page': {
-      id: '/_layout/trac-nghiem/$subjectCode/$page'
-      path: '/trac-nghiem/$subjectCode/$page'
-      fullPath: '/trac-nghiem/$subjectCode/$page'
-      preLoaderRoute: typeof LayoutTracNghiemSubjectCodePageRouteImport
-      parentRoute: typeof LayoutRoute
-    }
+    "/_layout": {
+      id: "/_layout";
+      path: "";
+      fullPath: "";
+      preLoaderRoute: typeof LayoutRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_layout/": {
+      id: "/_layout/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof LayoutIndexRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
+    "/_layout/dong-gop": {
+      id: "/_layout/dong-gop";
+      path: "/dong-gop";
+      fullPath: "/dong-gop";
+      preLoaderRoute: typeof LayoutDongGopRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
+    "/_layout/$": {
+      id: "/_layout/$";
+      path: "/$";
+      fullPath: "/$";
+      preLoaderRoute: typeof LayoutSplatRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
+    "/_layout/trac-nghiem/": {
+      id: "/_layout/trac-nghiem/";
+      path: "/trac-nghiem";
+      fullPath: "/trac-nghiem";
+      preLoaderRoute: typeof LayoutTracNghiemIndexRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
+    "/_layout/tai-lieu/": {
+      id: "/_layout/tai-lieu/";
+      path: "/tai-lieu";
+      fullPath: "/tai-lieu";
+      preLoaderRoute: typeof LayoutTaiLieuIndexRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
+    "/_layout/tai-lieu/$documentId": {
+      id: "/_layout/tai-lieu/$documentId";
+      path: "/tai-lieu/$documentId";
+      fullPath: "/tai-lieu/$documentId";
+      preLoaderRoute: typeof LayoutTaiLieuDocumentIdRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
+    "/_layout/trac-nghiem/$subjectCode/": {
+      id: "/_layout/trac-nghiem/$subjectCode/";
+      path: "/trac-nghiem/$subjectCode";
+      fullPath: "/trac-nghiem/$subjectCode";
+      preLoaderRoute: typeof LayoutTracNghiemSubjectCodeIndexRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
+    "/_layout/trac-nghiem/$subjectCode/$page": {
+      id: "/_layout/trac-nghiem/$subjectCode/$page";
+      path: "/trac-nghiem/$subjectCode/$page";
+      fullPath: "/trac-nghiem/$subjectCode/$page";
+      preLoaderRoute: typeof LayoutTracNghiemSubjectCodePageRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
   }
 }
 
 interface LayoutRouteChildren {
-  LayoutSplatRoute: typeof LayoutSplatRoute
-  LayoutDongGopRoute: typeof LayoutDongGopRoute
-  LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutTaiLieuDocumentIdRoute: typeof LayoutTaiLieuDocumentIdRoute
-  LayoutTaiLieuIndexRoute: typeof LayoutTaiLieuIndexRoute
-  LayoutTracNghiemIndexRoute: typeof LayoutTracNghiemIndexRoute
-  LayoutTracNghiemSubjectCodePageRoute: typeof LayoutTracNghiemSubjectCodePageRoute
-  LayoutTracNghiemSubjectCodeIndexRoute: typeof LayoutTracNghiemSubjectCodeIndexRoute
+  LayoutSplatRoute: typeof LayoutSplatRoute;
+  LayoutDongGopRoute: typeof LayoutDongGopRoute;
+  LayoutIndexRoute: typeof LayoutIndexRoute;
+  LayoutTaiLieuDocumentIdRoute: typeof LayoutTaiLieuDocumentIdRoute;
+  LayoutTaiLieuIndexRoute: typeof LayoutTaiLieuIndexRoute;
+  LayoutTracNghiemIndexRoute: typeof LayoutTracNghiemIndexRoute;
+  LayoutTracNghiemSubjectCodePageRoute: typeof LayoutTracNghiemSubjectCodePageRoute;
+  LayoutTracNghiemSubjectCodeIndexRoute: typeof LayoutTracNghiemSubjectCodeIndexRoute;
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -224,23 +224,23 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutTracNghiemIndexRoute: LayoutTracNghiemIndexRoute,
   LayoutTracNghiemSubjectCodePageRoute: LayoutTracNghiemSubjectCodePageRoute,
   LayoutTracNghiemSubjectCodeIndexRoute: LayoutTracNghiemSubjectCodeIndexRoute,
-}
+};
 
 const LayoutRouteWithChildren =
-  LayoutRoute._addFileChildren(LayoutRouteChildren)
+  LayoutRoute._addFileChildren(LayoutRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
+import type { getRouter } from "./router.tsx";
+import type { createStart } from "@tanstack/react-start";
+declare module "@tanstack/react-start" {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
   }
 }

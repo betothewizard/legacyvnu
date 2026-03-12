@@ -24,7 +24,7 @@ app.use(
     origin: ALLOWED_ORIGIN,
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type"],
-  })
+  }),
 );
 
 app.get("/hi", (c) => {
@@ -45,7 +45,7 @@ app
         .from(questionsTable)
         .innerJoin(
           subjectsTable,
-          eq(subjectsTable.code, questionsTable.subjectCode)
+          eq(subjectsTable.code, questionsTable.subjectCode),
         );
 
       if (!raw) {
@@ -166,7 +166,7 @@ app.post("/upload", async (c) => {
   // Verify Turnstile token
   const turnstileVerification = await verifyTurnstileToken(
     turnstileToken,
-    c.env.TURNSTILE_SECRET_KEY
+    c.env.TURNSTILE_SECRET_KEY,
   );
 
   if (!turnstileVerification.success) {
@@ -207,8 +207,8 @@ app.post("/upload", async (c) => {
       sendTelegramNotification(
         c.env.TELEGRAM_BOT_TOKEN,
         c.env.TELEGRAM_CHAT_ID,
-        message
-      )
+        message,
+      ),
     );
 
     return c.json({ message: "Files uploaded successfully" });
@@ -223,8 +223,8 @@ app.post("/upload", async (c) => {
       sendTelegramNotification(
         c.env.TELEGRAM_BOT_TOKEN,
         c.env.TELEGRAM_CHAT_ID,
-        errorMessage
-      )
+        errorMessage,
+      ),
     );
 
     return c.json({ error: "Failed to upload files" }, 500);
@@ -260,7 +260,7 @@ app.post("/feedback", async (c) => {
     await sendTelegramNotification(
       c.env.TELEGRAM_BOT_TOKEN,
       c.env.TELEGRAM_CHAT_ID,
-      message
+      message,
     );
 
     // Send images if any
@@ -269,8 +269,8 @@ app.post("/feedback", async (c) => {
         sendTelegramImages(
           c.env.TELEGRAM_BOT_TOKEN,
           c.env.TELEGRAM_CHAT_ID,
-          images
-        )
+          images,
+        ),
       );
     }
 
@@ -288,12 +288,12 @@ app.notFound((c) => {
 async function sendTelegramNotification(
   botToken: string,
   chatId: string,
-  message: string
+  message: string,
 ): Promise<void> {
   console.log({ botToken, chatId, message });
   if (!botToken || !chatId) {
     console.warn(
-      "Telegram bot token or chat ID is missing. Skipping notification."
+      "Telegram bot token or chat ID is missing. Skipping notification.",
     );
     return;
   }
@@ -317,7 +317,7 @@ async function sendTelegramNotification(
       console.error(
         "Failed to send Telegram notification:",
         response.status,
-        errorData
+        errorData,
       );
     } else {
       console.log("Telegram notification sent successfully.");
@@ -329,7 +329,7 @@ async function sendTelegramNotification(
 
 async function verifyTurnstileToken(
   token: string,
-  secretKey: string
+  secretKey: string,
 ): Promise<{ success: boolean }> {
   const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
   try {
@@ -355,11 +355,11 @@ async function verifyTurnstileToken(
 async function sendTelegramImages(
   botToken: string,
   chatId: string,
-  images: File[]
+  images: File[],
 ): Promise<void> {
   if (!botToken || !chatId) {
     console.warn(
-      "Telegram bot token or chat ID is missing. Skipping image upload."
+      "Telegram bot token or chat ID is missing. Skipping image upload.",
     );
     return;
   }
@@ -382,7 +382,7 @@ async function sendTelegramImages(
         console.error(
           "Failed to send Telegram image:",
           response.status,
-          errorData
+          errorData,
         );
       } else {
         console.log("Telegram image sent successfully.");
