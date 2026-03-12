@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Github, Mail, Globe } from "lucide-react";
 import { styles } from "~/src/styles";
 
@@ -67,12 +67,12 @@ function AboutPage() {
 
         <p className="text-muted-foreground">
           Bằng cách sử dụng LegacyVNU, bạn đồng ý với{" "}
-          <a
-            href="/chinh-sach-bao-mat"
+          <Link
+            to="/chinh-sach-bao-mat"
             className="underline underline-offset-4 hover:opacity-70"
           >
             Chính sách bảo mật
-          </a>{" "}
+          </Link>{" "}
           của chúng tôi.
         </p>
       </div>

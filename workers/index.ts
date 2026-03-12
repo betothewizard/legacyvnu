@@ -282,7 +282,7 @@ app.post("/feedback", async (c) => {
 });
 
 // --- Documents ---
-const DOCS_PAGE_SIZE = 20;
+const DOCS_PAGE_SIZE = 10;
 
 app
   .get("/documents/tags", async (c) => {

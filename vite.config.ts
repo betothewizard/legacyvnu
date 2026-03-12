@@ -19,32 +19,48 @@ async function getPrerenderPages(workerUrl: string | undefined) {
     { path: "/chinh-sach-bao-mat" },
   ];
 
-  // Fetch quizzes metadata from API
   if (workerUrl) {
+    // Fetch quizzes metadata
     try {
       const response = await fetch(`${workerUrl}/api/quizzes/metadata`);
       if (!response.ok) {
         console.warn(
           `[prerender] Failed to fetch quizzes metadata: ${response.status}`,
         );
-        return pages;
-      }
-      const quizzes = await response.json();
-
-      if (Array.isArray(quizzes)) {
-        for (const quiz of quizzes) {
-          const totalPages = Math.ceil(quiz.total / 10);
-
-          for (let p = 0; p < totalPages; p++) {
-            pages.push({ path: `/trac-nghiem/${quiz.code}/${p}` });
+      } else {
+        const quizzes = await response.json();
+        if (Array.isArray(quizzes)) {
+          for (const quiz of quizzes) {
+            const totalPages = Math.ceil(quiz.total / 10);
+            for (let p = 0; p < totalPages; p++) {
+              pages.push({ path: `/trac-nghiem/${quiz.code}/${p}` });
+            }
+            pages.push({ path: `/trac-nghiem/${quiz.code}` });
           }
-
-          pages.push({ path: `/trac-nghiem/${quiz.code}` });
+          console.log(`[prerender] Loaded ${quizzes.length} quiz subjects`);
         }
-        console.log(`[prerender] Loaded ${quizzes.length} quiz subjects`);
       }
     } catch (error) {
       console.error("[prerender] Failed to fetch quizzes metadata:", error);
+    }
+
+    // Fetch documents pagination metadata
+    try {
+      const response = await fetch(`${workerUrl}/api/documents?page=0`);
+      if (!response.ok) {
+        console.warn(
+          `[prerender] Failed to fetch documents metadata: ${response.status}`,
+        );
+      } else {
+        const data = await response.json();
+        const totalPages: number = data?.meta?.totalPages ?? 0;
+        for (let p = 0; p < totalPages; p++) {
+          pages.push({ path: `/tai-lieu/p/${p}` });
+        }
+        console.log(`[prerender] Loaded ${totalPages} document pages`);
+      }
+    } catch (error) {
+      console.error("[prerender] Failed to fetch documents metadata:", error);
     }
   }
 

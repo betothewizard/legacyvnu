@@ -164,7 +164,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body>
-        <CountdownBanner />
+        {/*<CountdownBanner />*/}
         <div className="texture" />
         {children}
         <Scripts />

@@ -20,6 +20,7 @@ import { Route as LayoutTaiLieuIndexRouteImport } from './routes/_layout/tai-lie
 import { Route as LayoutTaiLieuDocumentIdRouteImport } from './routes/_layout/tai-lieu/$documentId'
 import { Route as LayoutTracNghiemSubjectCodeIndexRouteImport } from './routes/_layout/trac-nghiem/$subjectCode.index'
 import { Route as LayoutTracNghiemSubjectCodePageRouteImport } from './routes/_layout/trac-nghiem/$subjectCode.$page'
+import { Route as LayoutTaiLieuPPageRouteImport } from './routes/_layout/tai-lieu/p/$page'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -77,6 +78,11 @@ const LayoutTracNghiemSubjectCodePageRoute =
     path: '/trac-nghiem/$subjectCode/$page',
     getParentRoute: () => LayoutRoute,
   } as any)
+const LayoutTaiLieuPPageRoute = LayoutTaiLieuPPageRouteImport.update({
+  id: '/tai-lieu/p/$page',
+  path: '/tai-lieu/p/$page',
+  getParentRoute: () => LayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/$': typeof LayoutSplatRoute
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
   '/tai-lieu': typeof LayoutTaiLieuIndexRoute
   '/trac-nghiem': typeof LayoutTracNghiemIndexRoute
+  '/tai-lieu/p/$page': typeof LayoutTaiLieuPPageRoute
   '/trac-nghiem/$subjectCode/$page': typeof LayoutTracNghiemSubjectCodePageRoute
   '/trac-nghiem/$subjectCode': typeof LayoutTracNghiemSubjectCodeIndexRoute
 }
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
   '/tai-lieu': typeof LayoutTaiLieuIndexRoute
   '/trac-nghiem': typeof LayoutTracNghiemIndexRoute
+  '/tai-lieu/p/$page': typeof LayoutTaiLieuPPageRoute
   '/trac-nghiem/$subjectCode/$page': typeof LayoutTracNghiemSubjectCodePageRoute
   '/trac-nghiem/$subjectCode': typeof LayoutTracNghiemSubjectCodeIndexRoute
 }
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/_layout/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
   '/_layout/tai-lieu/': typeof LayoutTaiLieuIndexRoute
   '/_layout/trac-nghiem/': typeof LayoutTracNghiemIndexRoute
+  '/_layout/tai-lieu/p/$page': typeof LayoutTaiLieuPPageRoute
   '/_layout/trac-nghiem/$subjectCode/$page': typeof LayoutTracNghiemSubjectCodePageRoute
   '/_layout/trac-nghiem/$subjectCode/': typeof LayoutTracNghiemSubjectCodeIndexRoute
 }
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/tai-lieu/$documentId'
     | '/tai-lieu'
     | '/trac-nghiem'
+    | '/tai-lieu/p/$page'
     | '/trac-nghiem/$subjectCode/$page'
     | '/trac-nghiem/$subjectCode'
   fileRoutesByTo: FileRoutesByTo
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/tai-lieu/$documentId'
     | '/tai-lieu'
     | '/trac-nghiem'
+    | '/tai-lieu/p/$page'
     | '/trac-nghiem/$subjectCode/$page'
     | '/trac-nghiem/$subjectCode'
   id:
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/_layout/tai-lieu/$documentId'
     | '/_layout/tai-lieu/'
     | '/_layout/trac-nghiem/'
+    | '/_layout/tai-lieu/p/$page'
     | '/_layout/trac-nghiem/$subjectCode/$page'
     | '/_layout/trac-nghiem/$subjectCode/'
   fileRoutesById: FileRoutesById
@@ -239,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutTracNghiemSubjectCodePageRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/tai-lieu/p/$page': {
+      id: '/_layout/tai-lieu/p/$page'
+      path: '/tai-lieu/p/$page'
+      fullPath: '/tai-lieu/p/$page'
+      preLoaderRoute: typeof LayoutTaiLieuPPageRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
@@ -251,6 +270,7 @@ interface LayoutRouteChildren {
   LayoutTaiLieuDocumentIdRoute: typeof LayoutTaiLieuDocumentIdRoute
   LayoutTaiLieuIndexRoute: typeof LayoutTaiLieuIndexRoute
   LayoutTracNghiemIndexRoute: typeof LayoutTracNghiemIndexRoute
+  LayoutTaiLieuPPageRoute: typeof LayoutTaiLieuPPageRoute
   LayoutTracNghiemSubjectCodePageRoute: typeof LayoutTracNghiemSubjectCodePageRoute
   LayoutTracNghiemSubjectCodeIndexRoute: typeof LayoutTracNghiemSubjectCodeIndexRoute
 }
@@ -264,6 +284,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutTaiLieuDocumentIdRoute: LayoutTaiLieuDocumentIdRoute,
   LayoutTaiLieuIndexRoute: LayoutTaiLieuIndexRoute,
   LayoutTracNghiemIndexRoute: LayoutTracNghiemIndexRoute,
+  LayoutTaiLieuPPageRoute: LayoutTaiLieuPPageRoute,
   LayoutTracNghiemSubjectCodePageRoute: LayoutTracNghiemSubjectCodePageRoute,
   LayoutTracNghiemSubjectCodeIndexRoute: LayoutTracNghiemSubjectCodeIndexRoute,
 }
