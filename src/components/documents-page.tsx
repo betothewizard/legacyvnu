@@ -17,7 +17,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "~/src/components/ui/pagination";
-import { AdLeaderboard, AdInList } from "~/src/components/sponsored";
 
 export const TAG_LABELS: Record<string, string> = {
   "dai-hoc-cong-nghe": "Đại Học Công Nghệ",
@@ -47,8 +46,6 @@ async function fetchDocuments(params: {
   const res = await fetch(`${WORKER_URL}/api/documents?${qs.toString()}`);
   return res.json() as Promise<DocumentsResponse>;
 }
-
-const AD_EVERY_N_CARDS = 4;
 
 interface Props {
   docsRes: DocumentsResponse;
@@ -118,12 +115,7 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
   return (
     <div className={`${styles.paddingX} ${styles.flexCenter}`}>
       <div className={`${styles.boxWidth}`}>
-        {/* Top leaderboard ad */}
-        <div className="my-4">
-          <AdLeaderboard />
-        </div>
-
-        <div className="flex gap-6 pb-10">
+        <div className="flex gap-6 pb-10 pt-6">
           {/* Sidebar */}
           <aside className="hidden md:flex flex-col gap-2 w-52 shrink-0 pt-1">
             <p className="font-serif font-bold text-sm mb-1">Lọc theo trường</p>
@@ -208,44 +200,39 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
                   Không tìm thấy tài liệu nào.
                 </p>
               )}
-              {docs.map((doc, i) => (
-                <>
-                  {i > 0 && i % AD_EVERY_N_CARDS === 0 && (
-                    <AdInList key={`ad-${i}`} className="my-1" />
-                  )}
-                  <Link key={doc.slug} to="/tai-lieu/$documentId" params={{ documentId: doc.slug }}>
-                    <Card className="hover:border-primary transition-colors cursor-pointer">
-                      <CardHeader>
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <CardTitle className="line-clamp-1 text-base">
-                              {doc.title}
-                            </CardTitle>
-                            {doc.description && (
-                              <CardDescription className="line-clamp-2 mt-1">
-                                {doc.description}
-                              </CardDescription>
-                            )}
-                          </div>
-                          <Badge variant="secondary" className="shrink-0 text-xs">
-                            {TAG_LABELS[doc.tag] ?? doc.tag}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
-                          {doc.publishedAt && (
-                            <span>
-                              {new Date(doc.publishedAt).toLocaleDateString("vi-VN")}
-                            </span>
+              {docs.map((doc) => (
+                <Link key={doc.slug} to="/tai-lieu/$documentId" params={{ documentId: doc.slug }}>
+                  <Card className="hover:border-primary transition-colors cursor-pointer">
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <CardTitle className="line-clamp-1 text-base">
+                            {doc.title}
+                          </CardTitle>
+                          {doc.description && (
+                            <CardDescription className="line-clamp-2 mt-1">
+                              {doc.description}
+                            </CardDescription>
                           )}
-                          <span className="flex items-center gap-1">
-                            <Download className="size-3" />
-                            {doc.downloadCount.toLocaleString()}
-                          </span>
                         </div>
-                      </CardHeader>
-                    </Card>
-                  </Link>
-                </>
+                        <Badge variant="secondary" className="shrink-0 text-xs">
+                          {TAG_LABELS[doc.tag] ?? doc.tag}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
+                        {doc.publishedAt && (
+                          <span>
+                            {new Date(doc.publishedAt).toLocaleDateString("vi-VN")}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1">
+                          <Download className="size-3" />
+                          {doc.downloadCount.toLocaleString()}
+                        </span>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                </Link>
               ))}
             </div>
 
@@ -337,11 +324,6 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
                 </PaginationContent>
               </Pagination>
             )}
-
-            {/* Footer ad */}
-            <div className="mt-6">
-              <AdLeaderboard />
-            </div>
           </div>
         </div>
       </div>

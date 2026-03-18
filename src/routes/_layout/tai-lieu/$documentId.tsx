@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Download, Calendar, ArrowLeft, FileText } from "lucide-react";
 import { styles } from "~/src/styles";
 import { getDocument, downloadDocument } from "~/src/services/documents";
@@ -7,7 +7,7 @@ import { Badge } from "~/src/components/ui/badge";
 import { Button } from "~/src/components/ui/button";
 import { Card, CardHeader, CardTitle } from "~/src/components/ui/card";
 import { Separator } from "~/src/components/ui/separator";
-import { AdRectangle, AdLeaderboard } from "~/src/components/sponsored";
+import { PdfViewer } from "~/src/components/pdf-viewer";
 
 const TAG_LABELS: Record<string, string> = {
   "dai-hoc-cong-nghe": "Đại Học Công Nghệ",
@@ -38,6 +38,11 @@ function DocumentPage() {
   const { doc, related } = Route.useLoaderData();
   const [downloadCount, setDownloadCount] = useState(doc.downloadCount);
   const [downloading, setDownloading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleDownload = async () => {
     setDownloading(true);
@@ -99,11 +104,6 @@ function DocumentPage() {
               </p>
             )}
 
-            {/* Mid-page ad */}
-            <div className="mb-5">
-              <AdLeaderboard />
-            </div>
-
             {/* File viewer */}
             <div className="rounded-xl border-2 overflow-hidden bg-card mb-4">
               <div className="flex items-center gap-2 px-4 py-2 border-b-2 bg-muted/50">
@@ -111,11 +111,17 @@ function DocumentPage() {
                 <span className="text-sm font-medium truncate">{doc.title}</span>
               </div>
               {ext === "pdf" ? (
-                <iframe
-                  src={doc.fileUrl}
-                  className="w-full h-[600px]"
-                  title={doc.title}
-                />
+                isMounted ? (
+                  <div className="w-full h-[600px] overflow-hidden">
+                    <PdfViewer fileUrl={doc.fileUrl} />
+                  </div>
+                ) : (
+                  <div className="w-full h-[600px] flex items-center justify-center bg-muted/30">
+                    <p className="text-sm text-muted-foreground">
+                      Đang chuẩn bị trình xem tài liệu...
+                    </p>
+                  </div>
+                )
               ) : (
                 <iframe
                   src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(doc.fileUrl)}`}
@@ -123,11 +129,6 @@ function DocumentPage() {
                   title={doc.title}
                 />
               )}
-            </div>
-
-            {/* Below viewer ad */}
-            <div className="mb-5">
-              <AdLeaderboard />
             </div>
 
             {/* Download button */}
@@ -144,31 +145,25 @@ function DocumentPage() {
 
           {/* Sidebar */}
           <aside className="lg:w-72 shrink-0 flex flex-col gap-5">
-            {/* Sidebar ad */}
-            <AdRectangle />
-
-            {/* Related documents */}
             {related.length > 0 && (
-              <div>
-                <Separator className="mb-4" />
-                <p className="font-serif font-bold text-sm mb-3">
-                  Tài liệu liên quan
-                </p>
-                <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-4">
+                <p className="font-serif font-bold text-sm">Tài liệu liên quan</p>
+                <div className="flex flex-col gap-3">
                   {related.map((r) => (
                     <Link
                       key={r.slug}
                       to="/tai-lieu/$documentId"
                       params={{ documentId: r.slug }}
+                      className="group"
                     >
-                      <Card className="hover:border-primary transition-colors cursor-pointer">
+                      <Card className="hover:border-primary transition-colors cursor-pointer overflow-hidden">
                         <CardHeader className="py-3 px-4">
-                          <CardTitle className="text-sm font-medium line-clamp-2 leading-snug">
+                          <CardTitle className="text-sm font-medium line-clamp-2 leading-snug group-hover:text-primary transition-colors">
                             {r.title}
                           </CardTitle>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                             <Download className="size-3" />
-                            {r.downloadCount.toLocaleString()}
+                            <span>{r.downloadCount.toLocaleString()} lượt tải</span>
                           </div>
                         </CardHeader>
                       </Card>
