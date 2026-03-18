@@ -44,16 +44,18 @@ async function getPrerenderPages(workerUrl: string | undefined) {
       console.error("[prerender] Failed to fetch quizzes metadata:", error);
     }
 
-    // Fetch documents pagination metadata
+    // Fetch documents pagination metadata + individual slugs
     try {
-      const response = await fetch(`${workerUrl}/api/documents?page=0`);
-      if (!response.ok) {
+      const firstResponse = await fetch(`${workerUrl}/api/documents?page=0`);
+      if (!firstResponse.ok) {
         console.warn(
-          `[prerender] Failed to fetch documents metadata: ${response.status}`,
+          `[prerender] Failed to fetch documents metadata: ${firstResponse.status}`,
         );
       } else {
-        const data = await response.json();
-        const totalPages: number = data?.meta?.totalPages ?? 0;
+        const firstData = await firstResponse.json();
+        const totalPages: number = firstData?.meta?.totalPages ?? 0;
+
+        // Prerender pagination listing pages
         for (let p = 0; p < totalPages; p++) {
           pages.push({ path: `/tai-lieu/p/${p}` });
         }
@@ -61,6 +63,24 @@ async function getPrerenderPages(workerUrl: string | undefined) {
       }
     } catch (error) {
       console.error("[prerender] Failed to fetch documents metadata:", error);
+    }
+
+    // Fetch all slugs in a single query via dedicated endpoint
+    try {
+      const slugsResponse = await fetch(`${workerUrl}/api/documents/slugs`);
+      if (!slugsResponse.ok) {
+        console.warn(
+          `[prerender] Failed to fetch document slugs: ${slugsResponse.status}`,
+        );
+      } else {
+        const slugs: string[] = await slugsResponse.json();
+        for (const slug of slugs) {
+          pages.push({ path: `/tai-lieu/${slug}` });
+        }
+        console.log(`[prerender] Loaded ${slugs.length} document detail pages`);
+      }
+    } catch (error) {
+      console.error("[prerender] Failed to fetch document slugs:", error);
     }
   }
 

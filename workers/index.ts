@@ -302,6 +302,18 @@ app
       return c.json({ error: e }, 500);
     }
   })
+  .get("/documents/slugs", async (c) => {
+    try {
+      const db = createDb(c.env.DB);
+      const rows = await db
+        .select({ slug: documentsTable.slug })
+        .from(documentsTable);
+      return c.json(rows.map((r) => r.slug));
+    } catch (e) {
+      console.error(e);
+      return c.json({ error: e }, 500);
+    }
+  })
   .get("/documents/:slug", async (c) => {
     try {
       const db = createDb(c.env.DB);

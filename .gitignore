@@ -33,3 +33,4 @@ build/
 .idx
 
 hocvnu-local-db/
+crawl-logs/
