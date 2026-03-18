@@ -1,7 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { staticFunctionMiddleware } from "@tanstack/start-static-server-functions";
 
-const WORKER_URL = process.env.VITE_WORKER_URL;
+/**
+ * WORKER_URL resolution:
+ * - Build time: process.env (for prerendering)
+ * - Browser: import.meta.env (for client-side interactions)
+ */
+const WORKER_URL = (typeof process !== 'undefined' && process.env?.VITE_WORKER_URL) 
+  ? process.env.VITE_WORKER_URL 
+  : (import.meta as any).env?.VITE_WORKER_URL;
 
 export type Document = {
   slug: string;
@@ -63,12 +70,13 @@ export const getDocument = createServerFn({ method: "GET" })
     }>;
   });
 
-export const downloadDocument = createServerFn({ method: "POST" })
-  .inputValidator((data: { slug: string }) => data)
-  .handler(async ({ data }) => {
-    const response = await fetch(
-      `${WORKER_URL}/api/documents/${data.slug}/download`,
-      { method: "POST" },
-    );
-    return response.json() as Promise<{ fileUrl: string }>;
-  });
+export async function downloadDocument(data: { slug: string }) {
+  const response = await fetch(
+    `${WORKER_URL}/api/documents/${data.slug}/download`,
+    { method: "POST" },
+  );
+  if (!response.ok) {
+    throw new Error(`Download failed with status: ${response.status}`);
+  }
+  return response.json() as Promise<{ fileUrl: string }>;
+}

@@ -47,7 +47,7 @@ function DocumentPage() {
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      const { fileUrl } = await downloadDocument({ data: { slug: doc.slug } });
+      const { fileUrl } = await downloadDocument({ slug: doc.slug });
       setDownloadCount((c) => c + 1);
       window.open(fileUrl, "_blank");
     } catch (e) {
