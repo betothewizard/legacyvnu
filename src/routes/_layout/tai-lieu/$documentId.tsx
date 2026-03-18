@@ -7,7 +7,7 @@ import { Badge } from "~/src/components/ui/badge";
 import { Button } from "~/src/components/ui/button";
 import { Card, CardHeader, CardTitle } from "~/src/components/ui/card";
 import { Separator } from "~/src/components/ui/separator";
-import { AdRectangle, AdLeaderboard } from "~/src/components/ads";
+import { AdRectangle, AdLeaderboard } from "~/src/components/sponsored";
 
 const TAG_LABELS: Record<string, string> = {
   "dai-hoc-cong-nghe": "Đại Học Công Nghệ",

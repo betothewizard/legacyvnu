@@ -94,6 +94,7 @@ export default defineConfig(async ({ mode }) => {
   return {
     server: {
       port: 5173,
+      host: true,
     },
     resolve: { alias: { "~": path.resolve(__dirname, ".") } },
     plugins: [

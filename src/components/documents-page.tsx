@@ -17,7 +17,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "~/src/components/ui/pagination";
-import { AdLeaderboard, AdInList } from "~/src/components/ads";
+import { AdLeaderboard, AdInList } from "~/src/components/sponsored";
 
 export const TAG_LABELS: Record<string, string> = {
   "dai-hoc-cong-nghe": "Đại Học Công Nghệ",
