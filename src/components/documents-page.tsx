@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Download, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { Search, Download, ChevronLeftIcon, ChevronRightIcon, FileText, Calendar } from "lucide-react";
 import { styles } from "~/src/styles";
 import type { DocumentsResponse, DocumentTag } from "~/src/services/documents";
 import { Card, CardHeader, CardTitle, CardDescription } from "~/src/components/ui/card";
