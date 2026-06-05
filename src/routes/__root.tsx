@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { scan } from "react-scan";
 import posthog from "posthog-js";
-import { CountdownBanner } from "../components/banner";
+import { Toaster } from "../components/ui/sonner";
 import "../styles/app.css";
 
 const ORIGIN = "https://legacyvnu.pages.dev";
@@ -164,9 +164,9 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body>
-        {/*<CountdownBanner />*/}
         <div className="texture" />
         {children}
+        <Toaster position="top-right" richColors />
         <Scripts />
       </body>
     </html>

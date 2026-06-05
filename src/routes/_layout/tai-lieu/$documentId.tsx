@@ -6,7 +6,6 @@ import { getDocument, downloadDocument } from "~/src/services/documents";
 import { Badge } from "~/src/components/ui/badge";
 import { Button } from "~/src/components/ui/button";
 import { Card, CardHeader, CardTitle } from "~/src/components/ui/card";
-import { Separator } from "~/src/components/ui/separator";
 import { PdfViewer } from "~/src/components/pdf-viewer";
 
 const TAG_LABELS: Record<string, string> = {

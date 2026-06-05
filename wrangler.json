@@ -17,5 +17,19 @@
       "preview_bucket_name": "hocvnu-r2",
       "remote": true
     }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CHAT_ROOM",
+        "class_name": "ChatRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["ChatRoom"]
+    }
   ]
 }

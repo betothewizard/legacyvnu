@@ -2,9 +2,19 @@ import type { D1Database, R2Bucket } from "@cloudflare/workers-types";
 import { and, eq, isNull, like, ne, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { questionsTable, subjectsTable, submissionsTable, documentsTable } from "./db/schema";
+import {
+  questionsTable,
+  subjectsTable,
+  submissionsTable,
+  documentsTable,
+  messagesTable,
+  user
+} from "./db/schema";
 import { PAGE_SIZE } from "./constants";
 import { createDb } from "./db";
+import { getAuth } from "./auth";
+import { DurableObject } from "cloudflare:workers";
+import type { DurableObjectNamespace, DurableObjectState } from "@cloudflare/workers-types";
 
 interface Env {
   DB: D1Database;
@@ -12,23 +22,42 @@ interface Env {
   TELEGRAM_BOT_TOKEN: string;
   TELEGRAM_CHAT_ID: string;
   TURNSTILE_SECRET_KEY: string;
+  CHAT_ROOM: DurableObjectNamespace;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
 }
-
-const ALLOWED_ORIGIN = "*";
 
 const app = new Hono<{ Bindings: Env }>().basePath("/api");
 
 app.use(
   "*",
   cors({
-    origin: ALLOWED_ORIGIN,
+    origin: (origin) => {
+      if (origin?.includes("localhost") || origin?.includes("legacyvnu.pages.dev")) {
+        return origin;
+      }
+      return "http://localhost:5173";
+    },
     allowMethods: ["GET", "POST", "OPTIONS"],
-    allowHeaders: ["Content-Type"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   }),
 );
 
 app.get("/hi", (c) => {
   return c.text("Hello");
+});
+
+app.get("/auth/error", (c) => {
+  const err = c.req.query("error") || "auth_error";
+  // Try to use a configured frontend URL or fallback to localhost
+  const frontendUrl = c.env.VITE_FRONTEND_URL || "http://localhost:5173";
+  return c.redirect(`${frontendUrl}/?error=${err}`);
+});
+
+app.all("/auth/*", (c) => {
+  const auth = getAuth(c.env.DB, c.env);
+  return auth.handler(c.req.raw);
 });
 
 app
@@ -335,7 +364,9 @@ app
         .from(documentsTable)
         .where(
           and(
-            doc.tag ? eq(documentsTable.tag, doc.tag) : isNull(documentsTable.tag),
+            doc.tag
+              ? eq(documentsTable.tag, doc.tag)
+              : isNull(documentsTable.tag),
             ne(documentsTable.slug, slug),
           ),
         )
@@ -414,6 +445,112 @@ app
 
 app.notFound((c) => {
   return c.json({ error: "Not found" }, 404);
+});
+
+// --- Chat ---
+app.get("/chat/ws", async (c) => {
+  const upgradeHeader = c.req.raw.headers.get("Upgrade");
+  if (!upgradeHeader || upgradeHeader !== "websocket") {
+    return new Response("Expected Upgrade: websocket", { status: 426 });
+  }
+
+  const id = c.env.CHAT_ROOM.idFromName("global_chat");
+  const stub = c.env.CHAT_ROOM.get(id);
+
+  return stub.fetch(c.req.raw);
+});
+
+app.get("/chat/messages", async (c) => {
+  try {
+    const db = createDb(c.env.DB);
+    const auth = getAuth(c.env.DB, c.env);
+    const session = await auth.api.getSession({
+      headers: c.req.raw.headers
+    });
+
+    const limit = session ? 50 : 5; // guests see 5, users see 50
+    // Fetch latest messages order by desc then reverse to show bottom-up
+    const rows = await db
+      .select({
+        id: messagesTable.id,
+        content: messagesTable.content,
+        createdAt: messagesTable.createdAt,
+        user: {
+          id: user.id,
+          name: user.name,
+          image: user.image
+        }
+      })
+      .from(messagesTable)
+      .innerJoin(user, eq(messagesTable.userId, user.id))
+      .orderBy(sql`${messagesTable.createdAt} desc`)
+      .limit(limit);
+
+    return c.json({ messages: rows.reverse() });
+  } catch (e) {
+    console.error(e);
+    return c.json({ error: e }, 500);
+  }
+});
+
+app.post("/chat/messages", async (c) => {
+  try {
+    const auth = getAuth(c.env.DB, c.env);
+    const sessionResponse = await auth.api.getSession({
+      headers: c.req.raw.headers
+    });
+
+    if (!sessionResponse || !sessionResponse.user) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const { content } = await c.req.json();
+    if (!content || !content.trim()) {
+      return c.json({ error: "Empty message" }, 400);
+    }
+
+    const db = createDb(c.env.DB);
+    const newMessageId = crypto.randomUUID();
+
+    await db.insert(messagesTable).values({
+      id: newMessageId,
+      content,
+      userId: sessionResponse.user.id,
+      createdAt: new Date()
+    });
+    
+    // Get the User info to broadcast
+    const [senderInfo] = await db
+      .select({
+        id: user.id,
+        name: user.name,
+        image: user.image
+      })
+      .from(user)
+      .where(eq(user.id, sessionResponse.user.id));
+
+    const messageData = {
+      id: newMessageId,
+      content,
+      createdAt: new Date().toISOString(),
+      user: senderInfo
+    };
+
+    // Broadcast to DO
+    const id = c.env.CHAT_ROOM.idFromName("global_chat");
+    const stub = c.env.CHAT_ROOM.get(id);
+    c.executionCtx.waitUntil(
+      stub.fetch(new Request("http://do/broadcast", {
+        method: "POST",
+        body: JSON.stringify(messageData)
+      }))
+    );
+
+    return c.json({ success: true, message: messageData });
+  } catch (e) {
+    console.error(e);
+    return c.json({ error: e }, 500);
+  }
 });
 
 async function sendTelegramNotification(
@@ -521,6 +658,55 @@ async function sendTelegramImages(
     } catch (error) {
       console.error("Error sending Telegram image:", error);
     }
+  }
+}
+
+export class ChatRoom extends DurableObject {
+  declare ctx: DurableObjectState;
+
+  constructor(ctx: DurableObjectState, env: Env) {
+    super(ctx, env);
+    this.ctx = ctx;
+  }
+
+  async fetch(request: Request) {
+    const url = new URL(request.url);
+    if (request.method === "POST" && url.pathname === "/broadcast") {
+      const message = await request.text();
+      for (const client of this.ctx.getWebSockets()) {
+        try {
+          client.send(message);
+        } catch {
+          // Ignore failed send
+        }
+      }
+      return new Response("ok", { status: 200 });
+    }
+
+    if (request.headers.get("Upgrade") !== "websocket") {
+      return new Response("expected websocket", { status: 400 });
+    }
+
+    // @ts-expect-error: WebSocketPair is only available in Cloudflare Workers runtime
+    const webSocketPair = new WebSocketPair();
+    const [client, server] = Object.values(webSocketPair);
+    this.ctx.acceptWebSocket(server as any);
+
+    return new Response(null, {
+      status: 101,
+      // @ts-expect-error: webSocket property is a Cloudflare Workers extension of ResponseInit
+      webSocket: client,
+    });
+  }
+
+  webSocketMessage(_ws: WebSocket, _message: string | ArrayBuffer) {
+    // Only handle if clients can send messages via WS directly,
+    // but in our design, they use HTTP POST to /api/chat/messages,
+    // and the Hono API routes the message to DO for broadcast.
+  }
+
+  webSocketClose(ws: WebSocket, _code: number, _reason: string, _wasClean: boolean) {
+    ws.close();
   }
 }
 

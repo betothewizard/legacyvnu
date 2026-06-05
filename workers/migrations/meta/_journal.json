@@ -22,6 +22,13 @@
       "when": 1771928470000,
       "tag": "0002_documents_nullable_tag",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1776966984413,
+      "tag": "0003_fluffy_fantastic_four",
+      "breakpoints": true
     }
   ]
 }
