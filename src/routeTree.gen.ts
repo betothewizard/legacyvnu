@@ -85,17 +85,17 @@ const LayoutTaiLieuPPageRoute = LayoutTaiLieuPPageRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof LayoutIndexRoute
   '/$': typeof LayoutSplatRoute
   '/chinh-sach-bao-mat': typeof LayoutChinhSachBaoMatRoute
   '/dong-gop': typeof LayoutDongGopRoute
   '/gioi-thieu': typeof LayoutGioiThieuRoute
-  '/': typeof LayoutIndexRoute
   '/tai-lieu/$documentId': typeof LayoutTaiLieuDocumentIdRoute
-  '/tai-lieu': typeof LayoutTaiLieuIndexRoute
-  '/trac-nghiem': typeof LayoutTracNghiemIndexRoute
+  '/tai-lieu/': typeof LayoutTaiLieuIndexRoute
+  '/trac-nghiem/': typeof LayoutTracNghiemIndexRoute
   '/tai-lieu/p/$page': typeof LayoutTaiLieuPPageRoute
   '/trac-nghiem/$subjectCode/$page': typeof LayoutTracNghiemSubjectCodePageRoute
-  '/trac-nghiem/$subjectCode': typeof LayoutTracNghiemSubjectCodeIndexRoute
+  '/trac-nghiem/$subjectCode/': typeof LayoutTracNghiemSubjectCodeIndexRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof LayoutSplatRoute
@@ -128,17 +128,17 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/$'
     | '/chinh-sach-bao-mat'
     | '/dong-gop'
     | '/gioi-thieu'
-    | '/'
     | '/tai-lieu/$documentId'
-    | '/tai-lieu'
-    | '/trac-nghiem'
+    | '/tai-lieu/'
+    | '/trac-nghiem/'
     | '/tai-lieu/p/$page'
     | '/trac-nghiem/$subjectCode/$page'
-    | '/trac-nghiem/$subjectCode'
+    | '/trac-nghiem/$subjectCode/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
@@ -177,7 +177,7 @@ declare module '@tanstack/react-router' {
     '/_layout': {
       id: '/_layout'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof LayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -219,14 +219,14 @@ declare module '@tanstack/react-router' {
     '/_layout/trac-nghiem/': {
       id: '/_layout/trac-nghiem/'
       path: '/trac-nghiem'
-      fullPath: '/trac-nghiem'
+      fullPath: '/trac-nghiem/'
       preLoaderRoute: typeof LayoutTracNghiemIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/tai-lieu/': {
       id: '/_layout/tai-lieu/'
       path: '/tai-lieu'
-      fullPath: '/tai-lieu'
+      fullPath: '/tai-lieu/'
       preLoaderRoute: typeof LayoutTaiLieuIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
@@ -240,7 +240,7 @@ declare module '@tanstack/react-router' {
     '/_layout/trac-nghiem/$subjectCode/': {
       id: '/_layout/trac-nghiem/$subjectCode/'
       path: '/trac-nghiem/$subjectCode'
-      fullPath: '/trac-nghiem/$subjectCode'
+      fullPath: '/trac-nghiem/$subjectCode/'
       preLoaderRoute: typeof LayoutTracNghiemSubjectCodeIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
