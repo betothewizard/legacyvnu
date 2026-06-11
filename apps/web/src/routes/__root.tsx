@@ -8,9 +8,11 @@ import {
   Scripts,
   useRouter,
 } from "@tanstack/react-router";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { scan } from "react-scan";
 import posthog from "posthog-js";
 import { Toaster } from "../components/ui/sonner";
+import { queryClient } from "../lib/query-client";
 import "../styles/app.css";
 
 const ORIGIN = "https://legacyvnu.pages.dev";
@@ -114,9 +116,11 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <QueryClientProvider client={queryClient}>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </QueryClientProvider>
   );
 }
 

@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "../lib/auth-client";
 import { apiFetch } from "../lib/api";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
-import { LogOut } from "lucide-react";
+import { Check, LogOut, PencilLine, Trash2 } from "lucide-react";
 
 const getWorkerUrl = () => {
   return import.meta.env.VITE_WORKER_URL || "http://localhost:8787";
@@ -16,6 +17,59 @@ const getWsUrl = () => {
   }
   return url.replace("http://", "ws://");
 };
+
+type ChatUser = {
+  id: string;
+  name: string | null;
+  image: string | null;
+};
+
+type ChatMessage = {
+  id: string;
+  content: string;
+  createdAt: string;
+  recalledAt?: string | null;
+  user: ChatUser;
+};
+
+type OptimisticChatMessage = ChatMessage & {
+  pending?: boolean;
+};
+
+type ChatMessagesResponse = {
+  messages: OptimisticChatMessage[];
+};
+
+const chatMessagesQueryKey = ["chat", "messages"] as const;
+
+function mergeChatMessage(
+  current: ChatMessagesResponse | undefined,
+  message: OptimisticChatMessage,
+) {
+  const messages = current?.messages ?? [];
+  if (messages.some((item) => item.id === message.id)) {
+    return current ?? { messages };
+  }
+
+  return {
+    messages: [...messages, message].slice(-50),
+  };
+}
+
+function upsertChatMessage(
+  current: ChatMessagesResponse | undefined,
+  message: ChatMessage,
+) {
+  const messages = current?.messages ?? [];
+  const nextMessages = messages.map((item) =>
+    item.id === message.id ? message : item,
+  );
+  const exists = messages.some((item) => item.id === message.id);
+
+  return {
+    messages: exists ? nextMessages : [...nextMessages, message].slice(-50),
+  };
+}
 
 function GoogleIcon(props: React.ComponentProps<"svg">) {
   return (
@@ -48,24 +102,98 @@ function GoogleIcon(props: React.ComponentProps<"svg">) {
 
 export function ChatBox() {
   const { data: session, isPending } = authClient.useSession();
-  const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [displayName, setDisplayName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const messagesListRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
 
-  const fetchMessages = async () => {
-    try {
+  const { data } = useQuery({
+    queryKey: chatMessagesQueryKey,
+    queryFn: async () => {
       const res = await apiFetch("/api/chat/messages");
-      const data = await res.json();
-      if (data.messages) {
-        setMessages(data.messages);
-        scrollToBottom();
+      return (await res.json()) as ChatMessagesResponse;
+    },
+    enabled: !isPending,
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({ content, clientId }: { content: string; clientId: string }) => {
+      const res = await apiFetch("/api/chat/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, clientId }),
+      });
+      return (await res.json()) as { success: boolean; message: ChatMessage };
+    },
+    onMutate: async ({ content, clientId }: { content: string; clientId: string }) => {
+      await queryClient.cancelQueries({ queryKey: chatMessagesQueryKey });
+      const previous = queryClient.getQueryData<ChatMessagesResponse>(chatMessagesQueryKey);
+      const optimisticMessage: OptimisticChatMessage = {
+        id: clientId,
+        content,
+        createdAt: new Date().toISOString(),
+        pending: true,
+        recalledAt: null,
+        user: {
+          id: session?.user?.id ?? "pending",
+          name: session?.user?.name ?? null,
+          image: session?.user?.image ?? null,
+        },
+      };
+      queryClient.setQueryData<ChatMessagesResponse>(chatMessagesQueryKey, (current) =>
+        mergeChatMessage(current, optimisticMessage),
+      );
+      scrollToBottom();
+      return { previous, clientId };
+    },
+    onError: (_error, _content, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(chatMessagesQueryKey, context.previous);
       }
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e.message || "Không thể tải tin nhắn chat");
-    }
-  };
+    },
+    onSuccess: (result, _content, context) => {
+      queryClient.setQueryData<ChatMessagesResponse>(chatMessagesQueryKey, (current) =>
+        upsertChatMessage(current, result.message),
+      );
+      scrollToBottom();
+    },
+  });
+
+  const recallMutation = useMutation({
+    mutationFn: async (messageId: string) => {
+      return apiFetch(`/api/chat/messages/${messageId}`, { method: "DELETE" }).then((res) => res.json());
+    },
+    onMutate: async (messageId) => {
+      await queryClient.cancelQueries({ queryKey: chatMessagesQueryKey });
+      const previous = queryClient.getQueryData<ChatMessagesResponse>(chatMessagesQueryKey);
+      queryClient.setQueryData<ChatMessagesResponse>(chatMessagesQueryKey, (current) => ({
+        messages: (current?.messages ?? []).map((message) =>
+          message.id === messageId ? { ...message, recalledAt: new Date().toISOString(), pending: false } : message,
+        ),
+      }));
+      return { previous };
+    },
+    onError: (_error, _messageId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(chatMessagesQueryKey, context.previous);
+      }
+    },
+  });
+
+  const updateNameMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return authClient.updateUser({ name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
+      setIsEditingName(false);
+      toast.success("Đã cập nhật tên hiển thị");
+    },
+  });
+
+  const messages = data?.messages ?? [];
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -76,9 +204,8 @@ export function ChatBox() {
   }, []);
 
   useEffect(() => {
-    if (isPending) return;
-    fetchMessages();
-  }, [session, isPending]);
+    setDisplayName(session?.user?.name ?? "");
+  }, [session?.user?.name]);
 
   useEffect(() => {
     if (isPending || !session) return;
@@ -88,7 +215,19 @@ export function ChatBox() {
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        setMessages((prev) => [...prev, msg].slice(-50));
+        if (msg?.type === "recalled") {
+          queryClient.setQueryData<ChatMessagesResponse>(chatMessagesQueryKey, (current) => ({
+            messages: (current?.messages ?? []).map((message) =>
+              message.id === msg.message.id
+                ? { ...message, recalledAt: msg.message.recalledAt, content: "Hiện là tin nhắn này đã bị thu hồi", pending: false }
+                : message,
+            ),
+          }));
+          return;
+        }
+        queryClient.setQueryData<ChatMessagesResponse>(chatMessagesQueryKey, (current) =>
+          upsertChatMessage(current, msg),
+        );
         scrollToBottom();
       } catch {
         // Ignore invalid message JSON
@@ -98,29 +237,36 @@ export function ChatBox() {
     return () => {
       ws.close();
     };
-  }, [session, isPending]);
+  }, [session, isPending, queryClient]);
+
+  useEffect(() => {
+    if (!messages.length) return;
+    scrollToBottom();
+  }, [messages.length]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      const el = messagesListRef.current;
+      if (!el) return;
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }, 100);
   };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    const content = input.trim();
+    if (!content) return;
+    setInput("");
 
     try {
-      await apiFetch("/api/chat/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: input }),
-      });
-      setInput("");
+      await sendMessageMutation.mutateAsync({ content, clientId: crypto.randomUUID() });
     } catch (e: any) {
       console.error(e);
-      toast.error(e.message || "Không thể gửi tin nhắn");
     }
+  };
+
+  const handleRecall = async (messageId: string) => {
+    await recallMutation.mutateAsync(messageId);
   };
 
   if (isPending) return <div className="text-sm p-4">Đang tải...</div>;
@@ -130,15 +276,47 @@ export function ChatBox() {
       <div className="flex justify-between items-center mb-2 border-b pb-2">
         <h2 className="font-semibold text-lg">Khu Vực Trò Chuyện</h2>
         {session && (
-          <button
-            title="Đăng xuất"
-            onClick={() => authClient.signOut()}
-            className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-muted"
-          >
-            <LogOut size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              title="Đổi tên hiển thị"
+              onClick={() => setIsEditingName((v) => !v)}
+              className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-muted"
+            >
+              <PencilLine size={18} />
+            </button>
+            <button
+              title="Đăng xuất"
+              onClick={() => authClient.signOut()}
+              className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-muted"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
         )}
       </div>
+
+      {session && isEditingName && (
+        <form
+          className="flex gap-2 mb-2"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const nextName = displayName.trim();
+            if (!nextName) return;
+            await updateNameMutation.mutateAsync(nextName);
+          }}
+        >
+          <input
+            className="flex-1 border border-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Tên hiển thị"
+          />
+          <Button type="submit" size="sm" disabled={updateNameMutation.isPending}>
+            <Check size={16} className="mr-1" />
+            Lưu
+          </Button>
+        </form>
+      )}
 
       {errorMsg && (
         <div
@@ -164,7 +342,7 @@ export function ChatBox() {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto mb-4 space-y-3 mt-2 scrollbar-thin">
+      <div ref={messagesListRef} className="flex-1 overflow-y-auto mb-4 space-y-3 mt-2 scrollbar-thin">
         {messages.map((m) => {
           const isMe = session?.user?.id && m.user?.id === session.user.id;
           return (
@@ -172,23 +350,38 @@ export function ChatBox() {
               key={m.id}
               className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
             >
-              <span className="font-medium text-xs text-muted-foreground mb-1">
-                {isMe ? "Bạn" : m.user?.name || "Guest"}
-              </span>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-medium text-xs text-muted-foreground">
+                  {isMe ? "Bạn" : m.user?.name || "Guest"}
+                </span>
+                {m.pending && (
+                  <span className="text-[10px] text-muted-foreground">đang gửi...</span>
+                )}
+                {isMe && !m.pending && (
+                  <button
+                    type="button"
+                    onClick={() => handleRecall(m.id)}
+                    className="text-[10px] text-muted-foreground hover:text-destructive transition-colors inline-flex items-center gap-1"
+                    title="Thu hồi tin nhắn"
+                  >
+                    <Trash2 className="size-3" />
+                    Thu hồi
+                  </button>
+                )}
+              </div>
               <span
                 className={`text-sm p-2 rounded-xl inline-block w-fit ${
                   isMe
                     ? "bg-primary text-primary-foreground rounded-br-sm"
                     : "bg-primary/10 text-primary rounded-bl-sm"
-                }`}
+                } ${m.pending ? "opacity-60" : ""}`}
                 style={{ wordBreak: "break-word", maxWidth: "85%" }}
               >
-                {m.content}
+                {m.recalledAt ? "Hiện là tin nhắn này đã bị thu hồi" : m.content}
               </span>
             </div>
           );
         })}
-        <div ref={messagesEndRef} />
       </div>
 
       {!session ? (

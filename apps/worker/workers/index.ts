@@ -6,7 +6,6 @@ import {
   DOCUMENTS_PAGE_SIZE,
   type DocumentDetailResponse,
   type DocumentDownloadResponse,
-  type DocumentSummary,
   type DocumentTag,
   type DocumentsResponse,
   type QuestionsResponse,
@@ -75,7 +74,7 @@ app.use(
       }
       return "http://localhost:5173";
     },
-    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),
@@ -292,9 +291,8 @@ app.post("/upload", async (c) => {
     return c.json({ message: "Files uploaded successfully" });
   } catch (e) {
     console.error(e);
-    let errorMessage = `<b>❌ File Upload Failed!</b>\nError: ${
-      e instanceof Error ? e.message : String(e)
-    }`;
+    let errorMessage = `<b>❌ File Upload Failed!</b>\nError: ${e instanceof Error ? e.message : String(e)
+      }`;
     errorMessage += detailsBlock;
 
     c.executionCtx.waitUntil(
@@ -528,6 +526,7 @@ app.get("/chat/messages", async (c) => {
         id: messagesTable.id,
         content: messagesTable.content,
         createdAt: messagesTable.createdAt,
+        recalledAt: messagesTable.recalledAt,
         user: {
           id: user.id,
           name: user.name,
@@ -557,7 +556,7 @@ app.post("/chat/messages", async (c) => {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    const { content } = await c.req.json();
+    const { content, clientId } = await c.req.json();
     if (!content || !content.trim()) {
       return c.json({ error: "Empty message" }, 400);
     }
@@ -583,7 +582,7 @@ app.post("/chat/messages", async (c) => {
       .where(eq(user.id, sessionResponse.user.id));
 
     const messageData = {
-      id: newMessageId,
+      id: clientId || newMessageId,
       content,
       createdAt: new Date().toISOString(),
       user: senderInfo,
@@ -602,6 +601,65 @@ app.post("/chat/messages", async (c) => {
     );
 
     return c.json({ success: true, message: messageData });
+  } catch (e) {
+    console.error(e);
+    return c.json({ error: e instanceof Error ? e.message : String(e) }, 500);
+  }
+});
+
+app.delete("/chat/messages/:messageId", async (c) => {
+  try {
+    const auth = getAuth(c.env.DB, c.env);
+    const sessionResponse = await auth.api.getSession({
+      headers: c.req.raw.headers,
+    });
+
+    if (!sessionResponse || !sessionResponse.user) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const messageId = c.req.param("messageId");
+    const db = createDb(c.env.DB);
+
+    const existing = await db.query.messagesTable.findFirst({
+      where: eq(messagesTable.id, messageId),
+      columns: {
+        id: true,
+        userId: true,
+      },
+    });
+
+    if (!existing) {
+      return c.json({ error: "Message not found" }, 404);
+    }
+
+    if (existing.userId !== sessionResponse.user.id) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
+
+    const recalledAt = new Date();
+    await db
+      .update(messagesTable)
+      .set({ recalledAt })
+      .where(eq(messagesTable.id, messageId));
+
+    const recalledMessage = {
+      id: existing.id,
+      recalledAt: recalledAt.toISOString(),
+    };
+
+    const chatId = c.env.CHAT_ROOM.idFromName("global_chat");
+    const stub = c.env.CHAT_ROOM.get(chatId);
+    c.executionCtx.waitUntil(
+      stub.fetch(
+        new Request("http://do/broadcast", {
+          method: "POST",
+          body: JSON.stringify({ type: "recalled", message: recalledMessage }),
+        }) as any,
+      ),
+    );
+
+    return c.json({ success: true, message: recalledMessage });
   } catch (e) {
     console.error(e);
     return c.json({ error: e instanceof Error ? e.message : String(e) }, 500);

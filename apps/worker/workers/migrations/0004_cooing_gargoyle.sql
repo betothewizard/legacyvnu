@@ -1,0 +1,1 @@
+ALTER TABLE `messages` ADD `recalled_at` integer;

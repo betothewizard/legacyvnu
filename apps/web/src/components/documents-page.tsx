@@ -11,7 +11,6 @@ import {
 import { getDocumentTagLabel } from "@legacyvnu/shared";
 import { styles } from "~/src/styles";
 import {
-  TAG_LABELS,
   type TDocumentsResponse,
   type TDocumentTag,
 } from "~/src/services/documents";

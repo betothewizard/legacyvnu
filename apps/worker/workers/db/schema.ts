@@ -95,4 +95,5 @@ export const messagesTable = sqliteTable("messages", {
     .references(() => user.id),
   content: text("content").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  recalledAt: integer("recalled_at", { mode: "timestamp" }),
 });
