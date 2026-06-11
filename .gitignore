@@ -9,6 +9,7 @@ lerna-debug.log*
 
 .react-router
 wrangler.toml
+apps/worker/wrangler.json
 node_modules
 dist
 dist-ssr

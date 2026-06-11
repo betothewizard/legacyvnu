@@ -1,0 +1,31 @@
+{
+  "name": "@legacyvnu/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev workers/index.ts",
+    "deploy": "wrangler versions secret bulk .env.production --name hocvnu-worker && wrangler deploy workers/index.ts --name hocvnu-worker",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply hocvnu-db --remote",
+    "db:migrate-local": "wrangler d1 migrations apply hocvnu-db --local",
+    "db:studio": "drizzle-kit studio",
+    "db:insight": "wrangler d1 insights hocvnu-db --sortBy reads --timePeriod 7d"
+  },
+  "dependencies": {
+    "@legacyvnu/shared": "workspace:*",
+    "better-auth": "^1.6.14",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.23"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260605.1",
+    "@types/node": "^25.9.1",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.8",
+    "wrangler": "^4.98.0"
+  }
+}

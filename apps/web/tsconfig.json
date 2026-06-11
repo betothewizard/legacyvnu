@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src/**/*",
+    "src/.server/**/*",
+    "src/.client/**/*",
+    "vite.config.ts",
+    "tsr.config.json"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "@legacyvnu/shared": ["../../packages/shared/src/index.ts"]
+    }
+  }
+}
