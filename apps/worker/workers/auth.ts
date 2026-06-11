@@ -59,7 +59,7 @@ export const getAuth = (d1: D1Database, env: any, requestUrl?: string) => {
       user: {
         create: {
           before: async (user) => {
-            if (!user.email.endsWith("@vnu.edu.vn")) {
+            if (!user.email || !user.email.toLowerCase().endsWith("@vnu.edu.vn")) {
               throw new APIError("BAD_REQUEST", {
                 message: "Email must end with @vnu.edu.vn",
               });
@@ -72,6 +72,13 @@ export const getAuth = (d1: D1Database, env: any, requestUrl?: string) => {
             };
           },
         },
+      },
+    },
+    advanced: {
+      useSecureCookies: true,
+      defaultCookieAttributes: {
+        sameSite: "none",
+        secure: true,
       },
     },
     trustedOrigins: ["http://localhost:5173", "https://legacyvnu.pages.dev"],

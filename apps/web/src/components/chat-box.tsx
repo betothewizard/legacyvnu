@@ -197,8 +197,13 @@ export function ChatBox() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("error")) {
-      setErrorMsg("Chỉ chấp nhận đăng nhập bằng email có đuôi @vnu.edu.vn!");
+    const err = params.get("error");
+    if (err) {
+      if (err === "BAD_REQUEST" || err.toLowerCase().includes("vnu.edu.vn")) {
+        setErrorMsg("Chỉ chấp nhận đăng nhập bằng email có đuôi @vnu.edu.vn!");
+      } else {
+        setErrorMsg(`Đăng nhập thất bại: ${decodeURIComponent(err)}`);
+      }
       window.history.replaceState(null, "", window.location.pathname);
     }
   }, []);
