@@ -1,24 +1,39 @@
 import { createServerFn } from "@tanstack/react-start";
 import { staticFunctionMiddleware } from "@tanstack/start-static-server-functions";
+import { IQuizMetadata } from "~/src/types/quizzes";
+import { apiFetch } from "~/src/lib/api";
 
-const WORKER_URL = process.env.VITE_WORKER_URL;
+export interface IBackendQuestion {
+  question: string;
+  correct_answer: string;
+  incorrect_answers: string[];
+  type?: number;
+}
+
+export interface IQuestionsResponse {
+  questions: IBackendQuestion[];
+  meta: {
+    page: number;
+    totalPages: number;
+  };
+}
 
 export const getQuestions = createServerFn({ method: "GET" })
   .middleware([staticFunctionMiddleware])
   .inputValidator((data: { subjectCode: string; page: number }) => data)
   .handler(async ({ data }) => {
     const { subjectCode, page } = data;
-    const response = await fetch(
-      `${WORKER_URL}/api/subject/${subjectCode}/quizzes?page=${page}`,
+    const response = await apiFetch(
+      `/api/subject/${subjectCode}/quizzes?page=${page}`,
     );
-    return response.json();
+    return response.json() as Promise<IQuestionsResponse>;
   });
 
 export const getQuizzesMetadata = createServerFn({ method: "GET" })
   .middleware([staticFunctionMiddleware])
   .handler(async () => {
-    const response = await fetch(`${WORKER_URL}/api/quizzes/metadata`);
-    return response.json();
+    const response = await apiFetch(`/api/quizzes/metadata`);
+    return response.json() as Promise<IQuizMetadata[]>;
   });
 
 export const submitQuiz = createServerFn({ method: "POST" })
@@ -30,12 +45,12 @@ export const submitQuiz = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { submission, subjectCode } = data;
-    const response = await fetch(
-      `${WORKER_URL}/api/subject/${subjectCode}/submit`,
+    const response = await apiFetch(
+      `/api/subject/${subjectCode}/submit`,
       {
         method: "POST",
         body: JSON.stringify(submission),
       },
     );
-    return response.json();
+    return response.json() as Promise<{ message: string }>;
   });

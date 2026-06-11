@@ -7,6 +7,7 @@ import {
 } from "~/src/components/ui/card";
 import { styles } from "~/src/styles";
 import { getQuizzesMetadata } from "~/src/services/quizzes";
+import { IQuizMetadata } from "~/src/types/quizzes";
 import { Button } from "~/src/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
@@ -27,7 +28,7 @@ function Quizzes() {
   return (
     <div className={`${styles.paddingX} ${styles.flexCenter}`}>
       <div className={`${styles.boxWidth}`}>
-        {loaderData.map((quizMetadata) => (
+        {loaderData.map((quizMetadata: IQuizMetadata) => (
           <Card key={quizMetadata.code}>
             <CardHeader className="flex flex-row justify-between items-center">
               <div>
@@ -36,7 +37,10 @@ function Quizzes() {
               </div>
 
               <Button asChild>
-                <Link to={`/trac-nghiem/${quizMetadata.code}`}>
+                <Link
+                  to="/trac-nghiem/$subjectCode"
+                  params={{ subjectCode: quizMetadata.code }}
+                >
                   <ArrowRight />
                 </Link>
               </Button>

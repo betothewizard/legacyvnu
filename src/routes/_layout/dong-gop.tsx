@@ -22,6 +22,7 @@ import { Uploader } from "~/src/components/ui/uploader";
 import { uploadFiles } from "~/src/services/upload";
 import { styles } from "~/src/styles";
 import { getEnv } from "~/src/lib/utils";
+import { apiFetch } from "~/src/lib/api";
 import { Input } from "../../components/ui/input";
 
 export const Route = createFileRoute("/_layout/dong-gop")({
@@ -68,12 +69,10 @@ function ContributePage() {
         if (contact.trim()) formData.append("contact", contact.trim());
         imageFiles.forEach((img) => formData.append("images", img));
 
-        const res = await fetch(`${getEnv("VITE_WORKER_URL")}/api/feedback`, {
+        await apiFetch("/api/feedback", {
           method: "POST",
           body: formData,
         });
-
-        if (!res.ok) throw new Error("Gửi góp ý thất bại");
       }
 
       setSuccess(true);

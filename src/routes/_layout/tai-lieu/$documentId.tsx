@@ -2,25 +2,20 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Download, Calendar, ArrowLeft, FileText } from "lucide-react";
 import { styles } from "~/src/styles";
-import { getDocument, downloadDocument } from "~/src/services/documents";
+import {
+  getDocument,
+  downloadDocument,
+  TAG_LABELS,
+} from "~/src/services/documents";
 import { Badge } from "~/src/components/ui/badge";
 import { Button } from "~/src/components/ui/button";
 import { Card, CardHeader, CardTitle } from "~/src/components/ui/card";
 import { PdfViewer } from "~/src/components/pdf-viewer";
 
-const TAG_LABELS: Record<string, string> = {
-  "dai-hoc-cong-nghe": "Đại Học Công Nghệ",
-  "dai-hoc-khtn": "Đại Học KHTN",
-  "dai-hoc-khxhnv": "Đại Học KHXHNV",
-  "dai-hoc-kinh-te": "Đại Học Kinh Tế",
-  "dai-hoc-ngoai-ngu": "Đại Học Ngoại Ngữ",
-  "dai-hoc-y-duoc": "Đại Học Y Dược",
-  "khoa-luat": "Khoa Luật",
-  "giao-trinh-chung": "Giáo Trình Chung",
-  "tai-lieu-chung": "Tài Liệu Chung",
-  "de-cuong-chung": "Đề Cương Chung",
-  "tieng-anh-vstep": "Tiếng Anh VSTEP",
-};
+function DocumentDetailRouteComponent() {
+  const { doc } = Route.useLoaderData();
+  return <DocumentPage key={doc.slug} />;
+}
 
 export const Route = createFileRoute("/_layout/tai-lieu/$documentId")({
   staleTime: Infinity,
@@ -30,7 +25,7 @@ export const Route = createFileRoute("/_layout/tai-lieu/$documentId")({
     if (!result) throw notFound();
     return result;
   },
-  component: DocumentPage,
+  component: DocumentDetailRouteComponent,
 });
 
 function DocumentPage() {
@@ -107,7 +102,9 @@ function DocumentPage() {
             <div className="rounded-xl border-2 overflow-hidden bg-card mb-4">
               <div className="flex items-center gap-2 px-4 py-2 border-b-2 bg-muted/50">
                 <FileText className="size-4 text-muted-foreground" />
-                <span className="text-sm font-medium truncate">{doc.title}</span>
+                <span className="text-sm font-medium truncate">
+                  {doc.title}
+                </span>
               </div>
               {ext === "pdf" ? (
                 isMounted ? (
@@ -146,7 +143,9 @@ function DocumentPage() {
           <aside className="lg:w-72 shrink-0 flex flex-col gap-5">
             {related.length > 0 && (
               <div className="flex flex-col gap-4">
-                <p className="font-serif font-bold text-sm">Tài liệu liên quan</p>
+                <p className="font-serif font-bold text-sm">
+                  Tài liệu liên quan
+                </p>
                 <div className="flex flex-col gap-3">
                   {related.map((r) => (
                     <Link
@@ -162,7 +161,9 @@ function DocumentPage() {
                           </CardTitle>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                             <Download className="size-3" />
-                            <span>{r.downloadCount.toLocaleString()} lượt tải</span>
+                            <span>
+                              {r.downloadCount.toLocaleString()} lượt tải
+                            </span>
                           </div>
                         </CardHeader>
                       </Card>

@@ -52,7 +52,7 @@ async function getPrerenderPages(workerUrl: string | undefined) {
           `[prerender] Failed to fetch documents metadata: ${firstResponse.status}`,
         );
       } else {
-        const firstData = await firstResponse.json();
+        const firstData = (await firstResponse.json()) as any;
         const totalPages: number = firstData?.meta?.totalPages ?? 0;
 
         // Prerender pagination listing pages

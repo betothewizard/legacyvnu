@@ -4,12 +4,24 @@ import { useState } from "react";
 import { Button } from "~/src/components/ui/button";
 import { CustomDialog } from "../../../components/custom-dialog";
 import { Question } from "../../../components/question-ui";
-import { getQuestions, submitQuiz } from "../../../services/quizzes";
+import { getQuestions, submitQuiz, IBackendQuestion, IQuestionsResponse } from "../../../services/quizzes";
 import { styles } from "../../../styles";
-import type { QuestionType } from "../../../types/question";
+import type { IQuestion } from "../../../types/question";
 import { shuffle } from "../../../lib/random";
 
 const QUESTIONS_PER_PAGE = 10;
+
+function SubjectQuizPageRouteComponent() {
+  const { subjectCode, currentPage, questionData } = Route.useLoaderData();
+  return (
+    <QuizPage
+      key={`${subjectCode}-${currentPage}`}
+      subjectCode={subjectCode}
+      currentPage={currentPage}
+      questionData={questionData}
+    />
+  );
+}
 
 export const Route = createFileRoute("/_layout/trac-nghiem/$subjectCode/$page")(
   {
@@ -23,14 +35,14 @@ export const Route = createFileRoute("/_layout/trac-nghiem/$subjectCode/$page")(
       });
       return { currentPage, subjectCode, questionData };
     },
-    component: QuizPage,
+    component: SubjectQuizPageRouteComponent,
   },
-)
+);
 
-const getQuestionsAndAnswers = (
-  data: any[],
+export const getQuestionsAndAnswers = (
+  data: IBackendQuestion[],
   currentPage: number,
-): QuestionType[] => {
+): IQuestion[] => {
   return data.map((questionData, id: number) => ({
     id: currentPage * QUESTIONS_PER_PAGE + id,
     question: questionData.question,
@@ -51,14 +63,21 @@ const getQuestionsAndAnswers = (
   }));
 };
 
-function QuizPage() {
-  const { currentPage, subjectCode, questionData } = Route.useLoaderData();
+export function QuizPage({
+  currentPage,
+  subjectCode,
+  questionData,
+}: {
+  currentPage: number;
+  subjectCode: string;
+  questionData: IQuestionsResponse;
+}) {
   const questions = questionData?.questions || [];
   const meta = questionData?.meta || { totalPages: 1 };
 
   // Initialize directly from loader data for SSG (useEffect doesn't run on server)
   const [questionsAndAnswers, setQuestionsAndAnswers] = useState<
-    QuestionType[]
+    IQuestion[]
   >(() =>
     questions.length > 0 ? getQuestionsAndAnswers(questions, currentPage) : [],
   );
@@ -104,7 +123,7 @@ function QuizPage() {
         {questionsAndAnswers.map((question, index) => (
           <Question
             key={index}
-            questionType={question}
+            question={question}
             onAnswerSelected={onAnswerSelected}
             showResult={showResult[currentPage]}
           />

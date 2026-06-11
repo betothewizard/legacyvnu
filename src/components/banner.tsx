@@ -9,11 +9,18 @@ const timeUnitTranslations: { [key: string]: string } = {
   seconds: "giây",
 };
 
+type TTimeLeft = {
+  days?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+};
+
 export function CountdownBanner() {
-  const calculateTimeLeft = () => {
+  const calculateTimeLeft = (): TTimeLeft => {
     const targetDate = new Date(2026, 1, 1, 0, 0, 0);
     const difference = +targetDate - +new Date();
-    let timeLeft = {};
+    let timeLeft: TTimeLeft = {};
 
     if (difference > 0) {
       timeLeft = {
@@ -26,7 +33,7 @@ export function CountdownBanner() {
     return timeLeft;
   };
 
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const [timeLeft, setTimeLeft] = useState<TTimeLeft>(calculateTimeLeft());
   const [isVisible, setIsVisible] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
@@ -43,16 +50,16 @@ export function CountdownBanner() {
     return () => clearInterval(timer);
   }, []);
 
-  const timerComponents: JSX.Element[] = [];
+  const timerComponents: React.ReactNode[] = [];
 
   Object.keys(timeLeft).forEach((interval) => {
-    if (!timeLeft[interval as keyof typeof timeLeft]) {
+    if (!timeLeft[interval as keyof TTimeLeft]) {
       return;
     }
 
     timerComponents.push(
       <span key={interval}>
-        {timeLeft[interval as keyof typeof timeLeft]}{" "}
+        {timeLeft[interval as keyof TTimeLeft]}{" "}
         {timeUnitTranslations[interval]}{" "}
       </span>,
     );

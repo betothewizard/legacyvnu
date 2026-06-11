@@ -1,9 +1,25 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Download, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { apiFetch } from "~/src/lib/api";
+import { toast } from "sonner";
+import {
+  Search,
+  Download,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
 import { styles } from "~/src/styles";
-import type { DocumentsResponse, DocumentTag } from "~/src/services/documents";
-import { Card, CardHeader, CardTitle, CardDescription } from "~/src/components/ui/card";
+import {
+  TAG_LABELS,
+  type TDocumentsResponse,
+  type TDocumentTag,
+} from "~/src/services/documents";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "~/src/components/ui/card";
 import { Badge } from "~/src/components/ui/badge";
 import { Input } from "~/src/components/ui/input";
 import { buttonVariants } from "~/src/components/ui/button";
@@ -18,48 +34,36 @@ import {
   PaginationPrevious,
 } from "~/src/components/ui/pagination";
 
-export const TAG_LABELS: Record<string, string> = {
-  "dai-hoc-cong-nghe": "Đại Học Công Nghệ",
-  "dai-hoc-khtn": "Đại Học KHTN",
-  "dai-hoc-khxhnv": "Đại Học KHXHNV",
-  "dai-hoc-kinh-te": "Đại Học Kinh Tế",
-  "dai-hoc-ngoai-ngu": "Đại Học Ngoại Ngữ",
-  "dai-hoc-y-duoc": "Đại Học Y Dược",
-  "khoa-luat": "Khoa Luật",
-  "giao-trinh-chung": "Giáo Trình Chung",
-  "tai-lieu-chung": "Tài Liệu Chung",
-  "de-cuong-chung": "Đề Cương Chung",
-  "tieng-anh-vstep": "Tiếng Anh VSTEP",
-};
-
-const WORKER_URL = import.meta.env.VITE_WORKER_URL;
-
 async function fetchDocuments(params: {
   page: number;
   tag?: string;
   search?: string;
-}): Promise<DocumentsResponse> {
+}): Promise<TDocumentsResponse> {
   const qs = new URLSearchParams();
   qs.set("page", String(params.page));
   if (params.tag) qs.set("tag", params.tag);
   if (params.search) qs.set("search", params.search);
-  const res = await fetch(`${WORKER_URL}/api/documents?${qs.toString()}`);
-  return res.json() as Promise<DocumentsResponse>;
+  const res = await apiFetch(`/api/documents?${qs.toString()}`);
+  return res.json() as Promise<TDocumentsResponse>;
 }
 
-interface Props {
-  docsRes: DocumentsResponse;
-  tags: DocumentTag[];
+interface IDocumentsPageProps {
+  docsRes: TDocumentsResponse;
+  tags: TDocumentTag[];
   /** 0-based page index from SSG loader */
   initialPage: number;
 }
 
-export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Props) {
+export function DocumentsPage({
+  docsRes: initialDocsRes,
+  tags,
+  initialPage,
+}: IDocumentsPageProps) {
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [search, setSearch] = useState("");
   // clientPage is only set when user applies filters/search (overrides SSG URL navigation)
   const [clientPage, setClientPage] = useState<number | null>(null);
-  const [docsRes, setDocsRes] = useState<DocumentsResponse>(initialDocsRes);
+  const [docsRes, setDocsRes] = useState<TDocumentsResponse>(initialDocsRes);
   const [loading, setLoading] = useState(false);
 
   // Sync SSG data when navigating between /tai-lieu/$page routes
@@ -81,8 +85,14 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
   const load = useCallback(async (p: number, tag: string, s: string) => {
     setLoading(true);
     try {
-      const res = await fetchDocuments({ page: p, tag: tag || undefined, search: s || undefined });
+      const res = await fetchDocuments({
+        page: p,
+        tag: tag || undefined,
+        search: s || undefined,
+      });
       setDocsRes(res);
+    } catch (err: any) {
+      toast.error(err.message || "Không thể tải danh sách tài liệu");
     } finally {
       setLoading(false);
     }
@@ -120,7 +130,10 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
           <aside className="hidden md:flex flex-col gap-2 w-52 shrink-0 pt-1">
             <p className="font-serif font-bold text-sm mb-1">Lọc theo trường</p>
             <button
-              onClick={() => { setSelectedTag(""); setClientPage(null); }}
+              onClick={() => {
+                setSelectedTag("");
+                setClientPage(null);
+              }}
               className={`text-left text-sm px-3 py-2 rounded-lg border-2 transition-colors ${
                 selectedTag === ""
                   ? "bg-primary text-primary-foreground border-primary"
@@ -128,7 +141,9 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
               }`}
             >
               Tất cả
-              <span className="ml-1 text-xs opacity-70">({initialDocsRes.meta.total})</span>
+              <span className="ml-1 text-xs opacity-70">
+                ({initialDocsRes.meta.total})
+              </span>
             </button>
             {tags.map(({ tag, count }) => (
               <button
@@ -162,7 +177,10 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
             {/* Mobile tag filter chips */}
             <div className="flex md:hidden gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
               <button
-                onClick={() => { setSelectedTag(""); setClientPage(null); }}
+                onClick={() => {
+                  setSelectedTag("");
+                  setClientPage(null);
+                }}
                 className={`shrink-0 text-xs px-3 py-1.5 rounded-full border-2 transition-colors ${
                   selectedTag === ""
                     ? "bg-primary text-primary-foreground border-primary"
@@ -194,14 +212,20 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
             </p>
 
             {/* Card list */}
-            <div className={`flex flex-col gap-3 transition-opacity duration-200 ${loading ? "opacity-50 pointer-events-none" : ""}`}>
+            <div
+              className={`flex flex-col gap-3 transition-opacity duration-200 ${loading ? "opacity-50 pointer-events-none" : ""}`}
+            >
               {!loading && docs.length === 0 && (
                 <p className="text-muted-foreground text-center py-12">
                   Không tìm thấy tài liệu nào.
                 </p>
               )}
               {docs.map((doc) => (
-                <Link key={doc.slug} to="/tai-lieu/$documentId" params={{ documentId: doc.slug }}>
+                <Link
+                  key={doc.slug}
+                  to="/tai-lieu/$documentId"
+                  params={{ documentId: doc.slug }}
+                >
                   <Card className="hover:border-primary transition-colors cursor-pointer">
                     <CardHeader>
                       <div className="flex items-start justify-between gap-3">
@@ -222,7 +246,9 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
                       <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
                         {doc.publishedAt && (
                           <span>
-                            {new Date(doc.publishedAt).toLocaleDateString("vi-VN")}
+                            {new Date(doc.publishedAt).toLocaleDateString(
+                              "vi-VN",
+                            )}
                           </span>
                         )}
                         <span className="flex items-center gap-1">
@@ -244,9 +270,16 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
                   <PaginationItem>
                     {hasFilters ? (
                       <PaginationPrevious
-                        onClick={() => { if (currentPage > 0) handleClientPage(currentPage - 1); }}
+                        onClick={() => {
+                          if (currentPage > 0)
+                            handleClientPage(currentPage - 1);
+                        }}
                         aria-disabled={currentPage === 0}
-                        className={currentPage === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        className={
+                          currentPage === 0
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
                       />
                     ) : (
                       <Link
@@ -256,7 +289,9 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
                         className={cn(
                           buttonVariants({ variant: "ghost", size: "default" }),
                           "gap-1 px-2.5 sm:pl-2.5",
-                          currentPage === 0 ? "pointer-events-none opacity-50" : "",
+                          currentPage === 0
+                            ? "pointer-events-none opacity-50"
+                            : "",
                         )}
                       >
                         <ChevronLeftIcon />
@@ -288,7 +323,10 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
                           params={{ page: String(n) }}
                           aria-current={currentPage === n ? "page" : undefined}
                           className={cn(
-                            buttonVariants({ variant: currentPage === n ? "outline" : "ghost", size: "icon" }),
+                            buttonVariants({
+                              variant: currentPage === n ? "outline" : "ghost",
+                              size: "icon",
+                            }),
                           )}
                         >
                           {n + 1}
@@ -301,19 +339,32 @@ export function DocumentsPage({ docsRes: initialDocsRes, tags, initialPage }: Pr
                   <PaginationItem>
                     {hasFilters ? (
                       <PaginationNext
-                        onClick={() => { if (currentPage < totalPages - 1) handleClientPage(currentPage + 1); }}
+                        onClick={() => {
+                          if (currentPage < totalPages - 1)
+                            handleClientPage(currentPage + 1);
+                        }}
                         aria-disabled={currentPage >= totalPages - 1}
-                        className={currentPage >= totalPages - 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        className={
+                          currentPage >= totalPages - 1
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
                       />
                     ) : (
                       <Link
                         to="/tai-lieu/p/$page"
-                        params={{ page: String(Math.min(totalPages - 1, currentPage + 1)) }}
+                        params={{
+                          page: String(
+                            Math.min(totalPages - 1, currentPage + 1),
+                          ),
+                        }}
                         aria-disabled={currentPage >= totalPages - 1}
                         className={cn(
                           buttonVariants({ variant: "ghost", size: "default" }),
                           "gap-1 px-2.5 sm:pr-2.5",
-                          currentPage >= totalPages - 1 ? "pointer-events-none opacity-50" : "",
+                          currentPage >= totalPages - 1
+                            ? "pointer-events-none opacity-50"
+                            : "",
                         )}
                       >
                         <span className="hidden sm:block">Next</span>
@@ -338,7 +389,11 @@ function buildPageNumbers(current: number, total: number): number[] {
   const pages = new Set<number>();
   pages.add(0);
   pages.add(total - 1);
-  for (let i = Math.max(0, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+  for (
+    let i = Math.max(0, current - 1);
+    i <= Math.min(total - 1, current + 1);
+    i++
+  ) {
     pages.add(i);
   }
   const sorted = [...pages].sort((a, b) => a - b);

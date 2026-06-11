@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/react";
+import { toast } from "sonner";
 
 const getWorkerUrl = () => {
   if (typeof window !== "undefined") {
@@ -8,5 +9,11 @@ const getWorkerUrl = () => {
 };
 
 export const authClient = createAuthClient({
-  baseURL: `${getWorkerUrl()}/api/auth`
+  baseURL: `${getWorkerUrl()}/api/auth`,
+  fetchOptions: {
+    onError: (ctx) => {
+      const errorMsg = ctx.error.message || "Xác thực không thành công";
+      toast.error(errorMsg);
+    },
+  },
 });

@@ -42,7 +42,8 @@ function AboutPage() {
         <div className="space-y-4">
           <h2 className="font-serif text-2xl">Cộng đồng & Liên hệ</h2>
           <p className="text-muted-foreground">
-            Tham gia cộng đồng của chúng tôi trên Discord để thảo luận, đóng góp tài liệu hoặc báo cáo vi phạm.
+            Tham gia cộng đồng của chúng tôi trên Discord để thảo luận, đóng góp
+            tài liệu hoặc báo cáo vi phạm.
           </p>
           <div className="flex flex-col gap-3">
             <a

@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { authClient } from "../lib/auth-client";
+import { apiFetch } from "../lib/api";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { LogOut } from "lucide-react";
 
@@ -17,7 +19,13 @@ const getWsUrl = () => {
 
 function GoogleIcon(props: React.ComponentProps<"svg">) {
   return (
-    <svg viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"
@@ -47,16 +55,15 @@ export function ChatBox() {
 
   const fetchMessages = async () => {
     try {
-      const res = await fetch(`${getWorkerUrl()}/api/chat/messages`, {
-        credentials: "include"
-      });
+      const res = await apiFetch("/api/chat/messages");
       const data = await res.json();
       if (data.messages) {
         setMessages(data.messages);
         scrollToBottom();
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      toast.error(e.message || "Không thể tải tin nhắn chat");
     }
   };
 
@@ -104,17 +111,17 @@ export function ChatBox() {
     if (!input.trim()) return;
 
     try {
-      await fetch(`${getWorkerUrl()}/api/chat/messages`, {
+      await apiFetch("/api/chat/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ content: input })
+        body: JSON.stringify({ content: input }),
       });
       setInput("");
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      toast.error(e.message || "Không thể gửi tin nhắn");
     }
-  }
+  };
 
   if (isPending) return <div className="text-sm p-4">Đang tải...</div>;
 
@@ -134,11 +141,25 @@ export function ChatBox() {
       </div>
 
       {errorMsg && (
-        <div className="bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-200 px-3 py-2 rounded-lg mb-2 relative text-sm" role="alert">
+        <div
+          className="bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-200 px-3 py-2 rounded-lg mb-2 relative text-sm"
+          role="alert"
+        >
           <span className="block sm:inline font-medium">{errorMsg}</span>
-          <button className="absolute top-0 bottom-0 right-0 px-3 py-2" onClick={() => setErrorMsg("")}>
+          <button
+            className="absolute top-0 bottom-0 right-0 px-3 py-2"
+            onClick={() => setErrorMsg("")}
+          >
             <span className="sr-only">Đóng</span>
-            <svg className="fill-current h-4 w-4" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Đóng</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+            <svg
+              className="fill-current h-4 w-4"
+              role="button"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <title>Đóng</title>
+              <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+            </svg>
           </button>
         </div>
       )}
@@ -147,16 +168,20 @@ export function ChatBox() {
         {messages.map((m) => {
           const isMe = session?.user?.id && m.user?.id === session.user.id;
           return (
-            <div key={m.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
+            <div
+              key={m.id}
+              className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+            >
               <span className="font-medium text-xs text-muted-foreground mb-1">
-                {isMe ? "Bạn" : (m.user?.name || 'Guest')}
+                {isMe ? "Bạn" : m.user?.name || "Guest"}
               </span>
               <span
-                className={`text-sm p-2 rounded-xl inline-block w-fit ${isMe
+                className={`text-sm p-2 rounded-xl inline-block w-fit ${
+                  isMe
                     ? "bg-primary text-primary-foreground rounded-br-sm"
                     : "bg-primary/10 text-primary rounded-bl-sm"
-                  }`}
-                style={{ wordBreak: 'break-word', maxWidth: '85%' }}
+                }`}
+                style={{ wordBreak: "break-word", maxWidth: "85%" }}
               >
                 {m.content}
               </span>
@@ -169,29 +194,39 @@ export function ChatBox() {
       {!session ? (
         <div className="text-center mt-auto flex flex-col items-center border-t pt-4">
           <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
-            Bạn đang xem 5 tin nhắn gần nhất. Đăng nhập bằng email <b>@vnu.edu.vn</b> để xem toàn bộ và nhắn tin.
+            Bạn đang xem 5 tin nhắn gần nhất. Đăng nhập bằng email{" "}
+            <b>@vnu.edu.vn</b> để xem toàn bộ và nhắn tin.
           </p>
-          <Button variant="outline" className="gap-2" onClick={() => authClient.signIn.social({
-            provider: "google",
-            callbackURL: window.location.href,
-            errorCallbackURL: window.location.href
-          })}>
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() =>
+              authClient.signIn.social({
+                provider: "google",
+                callbackURL: window.location.href,
+                errorCallbackURL: window.location.href,
+              })
+            }
+          >
             <GoogleIcon />
             Đăng nhập với Google
           </Button>
         </div>
       ) : (
-        <form onSubmit={handleSend} className="flex gap-2 mt-auto border-t pt-4">
+        <form
+          onSubmit={handleSend}
+          className="flex gap-2 mt-auto border-t pt-4"
+        >
           <input
             type="text"
             className="flex-1 border border-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-background"
             placeholder="Viết tin nhắn..."
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value)}
           />
           <Button type="submit">Gửi</Button>
         </form>
       )}
     </div>
-  )
+  );
 }

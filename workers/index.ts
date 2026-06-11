@@ -8,13 +8,16 @@ import {
   submissionsTable,
   documentsTable,
   messagesTable,
-  user
+  user,
 } from "./db/schema";
 import { PAGE_SIZE } from "./constants";
 import { createDb } from "./db";
 import { getAuth } from "./auth";
 import { DurableObject } from "cloudflare:workers";
-import type { DurableObjectNamespace, DurableObjectState } from "@cloudflare/workers-types";
+import type {
+  DurableObjectNamespace,
+  DurableObjectState,
+} from "@cloudflare/workers-types";
 
 interface Env {
   DB: D1Database;
@@ -25,15 +28,30 @@ interface Env {
   CHAT_ROOM: DurableObjectNamespace;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  VITE_FRONTEND_URL?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>().basePath("/api");
+
+app.onError((err, c) => {
+  console.error("Hono error:", err);
+  return c.json(
+    {
+      error: err.message || "Internal Server Error",
+      stack: err instanceof Error ? err.stack : undefined,
+    },
+    500
+  );
+});
 
 app.use(
   "*",
   cors({
     origin: (origin) => {
-      if (origin?.includes("localhost") || origin?.includes("legacyvnu.pages.dev")) {
+      if (
+        origin?.includes("localhost") ||
+        origin?.includes("legacyvnu.pages.dev")
+      ) {
         return origin;
       }
       return "http://localhost:5173";
@@ -55,9 +73,20 @@ app.get("/auth/error", (c) => {
   return c.redirect(`${frontendUrl}/?error=${err}`);
 });
 
-app.all("/auth/*", (c) => {
-  const auth = getAuth(c.env.DB, c.env);
-  return auth.handler(c.req.raw);
+app.all("/auth/*", async (c) => {
+  try {
+    const auth = getAuth(c.env.DB, c.env, c.req.url);
+    return await auth.handler(c.req.raw);
+  } catch (err) {
+    console.error("Auth handler error:", err);
+    return c.json(
+      {
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      },
+      500
+    );
+  }
 });
 
 app
@@ -457,7 +486,7 @@ app.get("/chat/ws", async (c) => {
   const id = c.env.CHAT_ROOM.idFromName("global_chat");
   const stub = c.env.CHAT_ROOM.get(id);
 
-  return stub.fetch(c.req.raw);
+  return stub.fetch(c.req.raw as any) as any;
 });
 
 app.get("/chat/messages", async (c) => {
@@ -465,7 +494,7 @@ app.get("/chat/messages", async (c) => {
     const db = createDb(c.env.DB);
     const auth = getAuth(c.env.DB, c.env);
     const session = await auth.api.getSession({
-      headers: c.req.raw.headers
+      headers: c.req.raw.headers,
     });
 
     const limit = session ? 50 : 5; // guests see 5, users see 50
@@ -478,8 +507,8 @@ app.get("/chat/messages", async (c) => {
         user: {
           id: user.id,
           name: user.name,
-          image: user.image
-        }
+          image: user.image,
+        },
       })
       .from(messagesTable)
       .innerJoin(user, eq(messagesTable.userId, user.id))
@@ -497,7 +526,7 @@ app.post("/chat/messages", async (c) => {
   try {
     const auth = getAuth(c.env.DB, c.env);
     const sessionResponse = await auth.api.getSession({
-      headers: c.req.raw.headers
+      headers: c.req.raw.headers,
     });
 
     if (!sessionResponse || !sessionResponse.user) {
@@ -516,15 +545,15 @@ app.post("/chat/messages", async (c) => {
       id: newMessageId,
       content,
       userId: sessionResponse.user.id,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
-    
+
     // Get the User info to broadcast
     const [senderInfo] = await db
       .select({
         id: user.id,
         name: user.name,
-        image: user.image
+        image: user.image,
       })
       .from(user)
       .where(eq(user.id, sessionResponse.user.id));
@@ -533,17 +562,19 @@ app.post("/chat/messages", async (c) => {
       id: newMessageId,
       content,
       createdAt: new Date().toISOString(),
-      user: senderInfo
+      user: senderInfo,
     };
 
     // Broadcast to DO
     const id = c.env.CHAT_ROOM.idFromName("global_chat");
     const stub = c.env.CHAT_ROOM.get(id);
     c.executionCtx.waitUntil(
-      stub.fetch(new Request("http://do/broadcast", {
-        method: "POST",
-        body: JSON.stringify(messageData)
-      }))
+      stub.fetch(
+        new Request("http://do/broadcast", {
+          method: "POST",
+          body: JSON.stringify(messageData),
+        }) as any,
+      ),
     );
 
     return c.json({ success: true, message: messageData });
@@ -705,7 +736,12 @@ export class ChatRoom extends DurableObject {
     // and the Hono API routes the message to DO for broadcast.
   }
 
-  webSocketClose(ws: WebSocket, _code: number, _reason: string, _wasClean: boolean) {
+  webSocketClose(
+    ws: WebSocket,
+    _code: number,
+    _reason: string,
+    _wasClean: boolean,
+  ) {
     ws.close();
   }
 }

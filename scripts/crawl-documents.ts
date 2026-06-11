@@ -54,7 +54,8 @@ const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID!;
 const API_TOKEN = process.env.CLOUDFLARE_API_TOKEN!;
 const R2_BUCKET = process.env.R2_BUCKET_NAME ?? "hocvnu-r2";
 const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL ?? "").replace(/\/$/, "");
-const D1_DB_ID = process.env.D1_DATABASE_ID ?? "35da43a6-78ff-499a-a442-9b4f909606ee";
+const D1_DB_ID =
+  process.env.D1_DATABASE_ID ?? "35da43a6-78ff-499a-a442-9b4f909606ee";
 
 if (!ACCOUNT_ID || !API_TOKEN || !R2_PUBLIC_URL) {
   console.error(
@@ -106,7 +107,9 @@ async function fetchAllPosts(): Promise<WpPost[]> {
     if (posts.length === 0) break;
     all.push(...posts);
     const totalPages = Number(res.headers.get("x-wp-totalpages") ?? "1");
-    console.log(`  [WP] page=${page}/${totalPages} (+${posts.length}, total=${all.length})`);
+    console.log(
+      `  [WP] page=${page}/${totalPages} (+${posts.length}, total=${all.length})`,
+    );
     if (page >= totalPages) break;
     page++;
   }
@@ -180,8 +183,10 @@ function stripHtml(html: string): string {
 
 const CONTENT_TYPE_TO_EXT: Record<string, string> = {
   "application/pdf": "pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "docx",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    "pptx",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
   "application/msword": "doc",
   "application/vnd.ms-powerpoint": "ppt",
@@ -209,12 +214,22 @@ function extFromMagicBytes(buf: Buffer): string | null {
   if (buf.length < 8) return null;
 
   // PDF
-  if (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46) {
+  if (
+    buf[0] === 0x25 &&
+    buf[1] === 0x50 &&
+    buf[2] === 0x44 &&
+    buf[3] === 0x46
+  ) {
     return "pdf";
   }
 
   // ZIP-based (Office Open XML: docx, pptx, xlsx)
-  if (buf[0] === 0x50 && buf[1] === 0x4b && buf[2] === 0x03 && buf[3] === 0x04) {
+  if (
+    buf[0] === 0x50 &&
+    buf[1] === 0x4b &&
+    buf[2] === 0x03 &&
+    buf[3] === 0x04
+  ) {
     // Can't distinguish docx/pptx/xlsx from magic bytes alone without inspecting the ZIP.
     // Default to docx — most documents on tailieuvnu are Word files.
     // The viewer handles all three the same way (Office Online).
@@ -223,8 +238,14 @@ function extFromMagicBytes(buf: Buffer): string | null {
 
   // Legacy OLE2 compound document (doc, ppt, xls)
   if (
-    buf[0] === 0xd0 && buf[1] === 0xcf && buf[2] === 0x11 && buf[3] === 0xe0 &&
-    buf[4] === 0xa1 && buf[5] === 0xb1 && buf[6] === 0x1a && buf[7] === 0xe1
+    buf[0] === 0xd0 &&
+    buf[1] === 0xcf &&
+    buf[2] === 0x11 &&
+    buf[3] === 0xe0 &&
+    buf[4] === 0xa1 &&
+    buf[5] === 0xb1 &&
+    buf[6] === 0x1a &&
+    buf[7] === 0xe1
   ) {
     return "doc";
   }
@@ -275,7 +296,11 @@ async function downloadFromDrive(
       cookies = cookies ? `${cookies}; ${newCookies}` : newCookies;
     }
 
-    if (response.status === 301 || response.status === 302 || response.status === 303) {
+    if (
+      response.status === 301 ||
+      response.status === 302 ||
+      response.status === 303
+    ) {
       const location = response.headers.get("location");
       if (!location) return null;
       url = location;
@@ -295,13 +320,17 @@ async function downloadFromDrive(
           continue;
         }
         // Check for the newer "download_warning" cookie approach
-        const warningCookie = cookies.match(/download_warning_[^=]+=([a-zA-Z0-9_-]+)/);
+        const warningCookie = cookies.match(
+          /download_warning_[^=]+=([a-zA-Z0-9_-]+)/,
+        );
         if (warningCookie) {
           url = `https://drive.google.com/uc?export=download&id=${fileId}&confirm=${warningCookie[1]}`;
           continue;
         }
         // Cannot extract confirm — give up
-        console.warn(`    [Drive] Got HTML for fileId=${fileId}, cannot bypass`);
+        console.warn(
+          `    [Drive] Got HTML for fileId=${fileId}, cannot bypass`,
+        );
         return null;
       }
 
@@ -323,7 +352,11 @@ async function downloadFromDrive(
 // Cloudflare R2 upload (via REST API)
 // ---------------------------------------------------------------------------
 
-async function uploadToR2(key: string, buffer: Buffer, contentType: string): Promise<void> {
+async function uploadToR2(
+  key: string,
+  buffer: Buffer,
+  contentType: string,
+): Promise<void> {
   const url = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/r2/buckets/${R2_BUCKET}/objects/${encodeURIComponent(key)}`;
   const res = await fetch(url, {
     method: "PUT",
@@ -343,7 +376,10 @@ async function uploadToR2(key: string, buffer: Buffer, contentType: string): Pro
 // Cloudflare D1 helpers
 // ---------------------------------------------------------------------------
 
-async function d1Query(sql: string, params: (string | number | null)[] = []): Promise<unknown> {
+async function d1Query(
+  sql: string,
+  params: (string | number | null)[] = [],
+): Promise<unknown> {
   const url = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${D1_DB_ID}/query`;
   const res = await fetch(url, {
     method: "POST",
@@ -379,7 +415,14 @@ async function insertDocument(doc: {
   await d1Query(
     `INSERT INTO documents (slug, title, description, tag, file_url, download_count, published_at, created_at)
      VALUES (?, ?, ?, ?, ?, 0, ?, datetime('now'))`,
-    [doc.slug, doc.title, doc.description, doc.tag, doc.fileUrl, doc.publishedAt],
+    [
+      doc.slug,
+      doc.title,
+      doc.description,
+      doc.tag,
+      doc.fileUrl,
+      doc.publishedAt,
+    ],
   );
 }
 
@@ -413,7 +456,9 @@ async function wipeAll() {
       throw new Error(`R2 list failed: ${JSON.stringify(listJson.errors)}`);
     }
 
-    const objects: { key: string }[] = Array.isArray(listJson.result) ? listJson.result : [];
+    const objects: { key: string }[] = Array.isArray(listJson.result)
+      ? listJson.result
+      : [];
     if (objects.length === 0) break;
 
     // Delete in batches via individual DELETEs (CF REST API has no batch delete)
@@ -488,7 +533,13 @@ async function main() {
       exists = await slugExistsInD1(slug);
     } catch (e) {
       console.error(`D1 check error: ${e}`);
-      report.push({ slug, title, status: "error", reason: `D1 check: ${e}`, postUrl });
+      report.push({
+        slug,
+        title,
+        status: "error",
+        reason: `D1 check: ${e}`,
+        postUrl,
+      });
       continue;
     }
     if (exists) {
@@ -499,7 +550,9 @@ async function main() {
 
     // 2. Extract file source — Google Drive or download.tailieuvnu.com
     const driveId = extractDriveFileId(post.content.rendered);
-    const directUrl = !driveId ? extractTailieuvnuUrl(post.content.rendered) : null;
+    const directUrl = !driveId
+      ? extractTailieuvnuUrl(post.content.rendered)
+      : null;
 
     if (!driveId && !directUrl) {
       process.stdout.write("no file link found, skipped\n");
@@ -522,7 +575,13 @@ async function main() {
         fileData = await downloadFromDrive(driveId);
       } catch (e) {
         process.stdout.write(`drive error\n`);
-        report.push({ slug, title, status: "error", reason: `Drive download: ${e}`, postUrl });
+        report.push({
+          slug,
+          title,
+          status: "error",
+          reason: `Drive download: ${e}`,
+          postUrl,
+        });
         continue;
       }
       if (!fileData) {
@@ -543,7 +602,13 @@ async function main() {
         fileData = await downloadDirect(directUrl!);
       } catch (e) {
         process.stdout.write(`direct error\n`);
-        report.push({ slug, title, status: "error", reason: `Direct download: ${e}`, postUrl });
+        report.push({
+          slug,
+          title,
+          status: "error",
+          reason: `Direct download: ${e}`,
+          postUrl,
+        });
         continue;
       }
       if (!fileData) {
@@ -576,12 +641,20 @@ async function main() {
     const contentType = contentTypeMap[ext] ?? "application/octet-stream";
 
     // 4. Upload to R2
-    process.stdout.write(`uploading r2=${r2Key} (${(buffer.byteLength / 1024).toFixed(0)}KB)... `);
+    process.stdout.write(
+      `uploading r2=${r2Key} (${(buffer.byteLength / 1024).toFixed(0)}KB)... `,
+    );
     try {
       await uploadToR2(r2Key, buffer, contentType);
     } catch (e) {
       process.stdout.write(`r2 error\n`);
-      report.push({ slug, title, status: "error", reason: `R2 upload: ${e}`, postUrl });
+      report.push({
+        slug,
+        title,
+        status: "error",
+        reason: `R2 upload: ${e}`,
+        postUrl,
+      });
       continue;
     }
 
@@ -602,7 +675,13 @@ async function main() {
       });
     } catch (e) {
       process.stdout.write(`d1 insert error\n`);
-      report.push({ slug, title, status: "error", reason: `D1 insert: ${e}`, postUrl });
+      report.push({
+        slug,
+        title,
+        status: "error",
+        reason: `D1 insert: ${e}`,
+        postUrl,
+      });
       continue;
     }
 
@@ -629,7 +708,9 @@ async function main() {
   );
   const skippedPath = path.join(logsDir, "crawl-skipped.json");
   fs.writeFileSync(skippedPath, JSON.stringify(skippedLog, null, 2));
-  console.log(`Skipped (needs manual check, ${skippedLog.length} entries) → ${skippedPath}`);
+  console.log(
+    `Skipped (needs manual check, ${skippedLog.length} entries) → ${skippedPath}`,
+  );
 
   // Errors log
   const errorsLog = report.filter((r) => r.status === "error");

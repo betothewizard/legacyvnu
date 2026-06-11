@@ -1,4 +1,4 @@
-import { getEnv } from "~/src/lib/utils";
+import { apiFetch } from "~/src/lib/api";
 
 export const uploadFiles = async (files: File[], turnstileToken: string) => {
   const formData = new FormData();
@@ -7,15 +7,10 @@ export const uploadFiles = async (files: File[], turnstileToken: string) => {
   });
   formData.append("turnstileToken", turnstileToken);
 
-  const response = await fetch(`${getEnv("VITE_WORKER_URL")}/api/upload`, {
+  const response = await apiFetch("/api/upload", {
     method: "POST",
     body: formData,
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || "Files upload failed");
-  }
 
   return response.json();
 };

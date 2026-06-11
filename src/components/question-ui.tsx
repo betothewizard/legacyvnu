@@ -1,54 +1,54 @@
 import { useState, useEffect } from "react";
-import type { QuestionType } from "../types/question";
+import type { IQuestion } from "../types/question";
 import { radio } from "../styles";
 import { RadioGroup, RadioGroupItem } from "~/src/components/ui/radio-group";
 
 import { Label } from "./ui/label";
 
-interface QuestionProps {
-  questionType: QuestionType;
+interface IQuestionProps {
+  question: IQuestion;
   onAnswerSelected: (questionIndex: number, answerIndex: number) => void;
   showResult: boolean;
 }
 
-const Question = (props: QuestionProps) => {
-  const { questionType, onAnswerSelected, showResult } = props;
+const Question = (props: IQuestionProps) => {
+  const { question, onAnswerSelected, showResult } = props;
   const [selected, setSelected] = useState<string>(
-    questionType.selectedAnswerIndex !== undefined
-      ? questionType.answers[questionType.selectedAnswerIndex].content
+    question.selectedAnswerIndex !== undefined
+      ? question.answers[question.selectedAnswerIndex].content
       : "",
   );
 
   useEffect(() => {
-    if (questionType.selectedAnswerIndex !== undefined) {
+    if (question.selectedAnswerIndex !== undefined) {
       setSelected(
-        questionType.answers[questionType.selectedAnswerIndex].content,
+        question.answers[question.selectedAnswerIndex].content,
       );
     } else {
       setSelected("");
     }
-  }, [questionType.selectedAnswerIndex, questionType.answers]);
+  }, [question.selectedAnswerIndex, question.answers]);
 
   const isIncorrect =
     showResult &&
-    questionType.selectedAnswerIndex !== undefined &&
-    questionType.answers[questionType.selectedAnswerIndex].content !==
-      questionType.correctAnswer;
+    question.selectedAnswerIndex !== undefined &&
+    question.answers[question.selectedAnswerIndex].content !==
+      question.correctAnswer;
 
   const handleValueChange = (value: string) => {
     setSelected(value);
-    const selectedAnswerIndex = questionType.answers.findIndex(
-      (answer) => answer.content === value,
+    const selectedAnswerIndex = question.answers.findIndex(
+      (answer: { id: number; content: string }) => answer.content === value,
     );
     if (selectedAnswerIndex !== -1) {
-      onAnswerSelected(questionType.id, selectedAnswerIndex);
+      onAnswerSelected(question.id, selectedAnswerIndex);
     }
   };
 
   return (
     <div className="mb-8">
       <div className="font-serif text-lg">
-        Câu {questionType.id + 1}: {questionType.question}{" "}
+        Câu {question.id + 1}: {question.question}{" "}
         <span className="text-red-500">{isIncorrect && "(x)"} </span>
       </div>
       <RadioGroup
@@ -56,36 +56,34 @@ const Question = (props: QuestionProps) => {
         value={selected}
         onValueChange={handleValueChange}
       >
-        {questionType.answers.map((answer, answerIndex) => (
+        {question.answers.map((answer: { id: number; content: string }, answerIndex: number) => (
           <div key={answer.id}>
             <RadioGroupItem
               value={answer.content}
-              id={`answer-${questionType.id}-${answer.id}`}
+              id={`answer-${question.id}-${answer.id}`}
               disabled={showResult}
               className="peer sr-only"
             />
             <Label
-              htmlFor={`answer-${questionType.id}-${answer.id}`}
-              className={`group flex cursor-pointer rounded-xl border border-b-2 px-2 py-3 shadow-lg transition-all bg-card text-card-foregroun
-                peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 text-md
-
-                ${
-                  answerIndex === questionType.selectedAnswerIndex
+              htmlFor={`answer-${question.id}-${answer.id}`}
+              className={`group flex cursor-pointer rounded-xl border border-b-2 px-2 py-3 shadow-lg transition-all bg-card text-card-foreground
+                peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 text-md                ${
+                  answerIndex === question.selectedAnswerIndex
                     ? "font-bold"
                     : ""
                 } ${
                   !showResult &&
-                  answerIndex === questionType.selectedAnswerIndex
+                  answerIndex === question.selectedAnswerIndex
                     ? radio.selected
                     : ""
                 } ${
-                  showResult && answer.content === questionType.correctAnswer
+                  showResult && answer.content === question.correctAnswer
                     ? radio.correct
                     : ""
                 } ${
                   showResult &&
-                  answerIndex === questionType.selectedAnswerIndex &&
-                  answer.content !== questionType.correctAnswer
+                  answerIndex === question.selectedAnswerIndex &&
+                  answer.content !== question.correctAnswer
                     ? radio.incorrect
                     : ""
                 } `}
