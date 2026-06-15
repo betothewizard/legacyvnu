@@ -224,7 +224,7 @@ export function ChatBox() {
           queryClient.setQueryData<ChatMessagesResponse>(chatMessagesQueryKey, (current) => ({
             messages: (current?.messages ?? []).map((message) =>
               message.id === msg.message.id
-                ? { ...message, recalledAt: msg.message.recalledAt, content: "Hiện là tin nhắn này đã bị thu hồi", pending: false }
+                ? { ...message, recalledAt: msg.message.recalledAt, content: "Tin nhắn này đã bị thu hồi", pending: false }
                 : message,
             ),
           }));
@@ -362,7 +362,7 @@ export function ChatBox() {
                 {m.pending && (
                   <span className="text-[10px] text-muted-foreground">đang gửi...</span>
                 )}
-                {isMe && !m.pending && (
+                {isMe && !m.pending && !m.recalledAt && (
                   <button
                     type="button"
                     onClick={() => handleRecall(m.id)}
@@ -375,14 +375,15 @@ export function ChatBox() {
                 )}
               </div>
               <span
-                className={`text-sm p-2 rounded-xl inline-block w-fit ${
-                  isMe
-                    ? "bg-primary text-primary-foreground rounded-br-sm"
-                    : "bg-primary/10 text-primary rounded-bl-sm"
-                } ${m.pending ? "opacity-60" : ""}`}
+                className={`text-sm p-2 rounded-xl inline-block w-fit ${m.recalledAt
+                    ? "bg-muted text-muted-foreground/70 border border-border italic"
+                    : isMe
+                      ? "bg-primary text-primary-foreground rounded-br-sm"
+                      : "bg-primary/10 text-primary rounded-bl-sm"
+                  } ${m.pending ? "opacity-60" : ""}`}
                 style={{ wordBreak: "break-word", maxWidth: "85%" }}
               >
-                {m.recalledAt ? "Hiện là tin nhắn này đã bị thu hồi" : m.content}
+                {m.recalledAt ? "Tin nhắn này đã bị thu hồi" : m.content}
               </span>
             </div>
           );

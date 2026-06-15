@@ -36,6 +36,27 @@
       "when": 1781197596143,
       "tag": "0004_cooing_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1781347793303,
+      "tag": "0005_powerful_firebird",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1781550113835,
+      "tag": "0006_condemned_vulcan",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1781550988285,
+      "tag": "0007_light_moondragon",
+      "breakpoints": true
     }
   ]
 }

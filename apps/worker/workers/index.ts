@@ -562,7 +562,7 @@ app.post("/chat/messages", async (c) => {
     }
 
     const db = createDb(c.env.DB);
-    const newMessageId = crypto.randomUUID();
+    const newMessageId = clientId || crypto.randomUUID();
 
     await db.insert(messagesTable).values({
       id: newMessageId,
@@ -582,7 +582,7 @@ app.post("/chat/messages", async (c) => {
       .where(eq(user.id, sessionResponse.user.id));
 
     const messageData = {
-      id: clientId || newMessageId,
+      id: newMessageId,
       content,
       createdAt: new Date().toISOString(),
       user: senderInfo,
